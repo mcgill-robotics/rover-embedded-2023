@@ -11,10 +11,10 @@
 
 
 #include "pid.h"
+#include "math.h"
 
-float Kp,Ki,Kd,Ts,Outmin,Outmax,set_point,antiwinduperror;
-int windup;
-float error,prev_input,error_sum; //do they start as 0 at first?
+float Kp,Ki,Kd,Ts,Outmin,Outmax,set_point,errorThreshold;
+float error,prev_input,error_sum, dError; //do they start as 0 at first?
 
 
 void PID_init(PID_Param_t *par)
@@ -26,43 +26,34 @@ void PID_init(PID_Param_t *par)
 	Kd=par->Kd;
 	Ts=par->Ts;
 	set_point=par->Set_point;
-	antiwinduperror=par->Anti_windup_error;
-	Outmin=par->Outmin;
-	Outmax=par->Outmax;
-	windup=par->Anti_windup;
+//	antiwinduperror=par->Anti_windup_error;
+//	Outmin=par->Outmin;
+//	Outmax=par->Outmax;
+	errorThreshold=par->errorThreshold;
 
-	if(0==par->Anti_windup_error){antiwinduperror=10;}
-	}
-
-float PID_Calculation(float inputSpeed)
+float PID_Calculation(float inputVar)
 	{
-	error=(set_point-inputSpeed);
+	error=(set_point-inputVar);
 	error_sum+=error; //added here
+	//dError = (abs(error)-abs(prev_error))/Ts;
+	dError = fabs(error-prev_error);
+	propTerm = Kp*(error);
+	intgrlTerm = Ki*(error_sum); //maybe times Ts
+	derivTerm = Kd*dError;
 
-	float outputSpeed;
-	if(Anti_windup_enabled==windup){ //maybe have another look at that
-
-		if(antiwinduperror<abs(error)) {
-			outputSpeed=Kp*(error)-( Kd*(input-prev_input)/Ts);
-			// used to be outputSpeed=Kp*(error)+Kd*(inputSpeed-prev_input)/Ts;
+	float outputVar;
+		if(fabs(error)>fabs(errorThreshold)) { //I'm not sure why this is giving a warning, use abs or fabs
+			outputVar = propTerm + derivTerm; //Do PD control when the error is too high
 			}
 		else {
-			outputSpeed=(Kp*(error)) +(Ki*(error_sum)*Ts) -( Kd*(input-prev_input)/Ts);
-			//used to be outputSpeed=(Kp*(error)) +( Ki*(Ki_sum)*Ts) -( Kd*(input-prev_input)/Ts);
+			outputVar = propTerm + intgrlTerm + derivTerm; //Within a certain thereshold do PID
 			}
 
 		}
 
-	else {
-		outputSpeed=Kp*(error) + Ki*(error_sum)*Ts -( Kd*(input-prev_input)/Ts);
-		// used to be outputSpeed=Kp*(error) + Ki*(Ki_sum)*Ts - Kd*(input-prev_input)/Ts;
-		}
-
-		//used to have Ki_sum=Ki_sum+(Ki_sum); //what's this for?
-	    Ki_sum=Ki_sum+(Ki_sum);
-		if(outputSpeed>Outmax){outputSpeed=Outmax;}
-		if(outputSpeed<Outmin){outputSpeed=Outmin;}
-		prev_input=inputSpeed;
-		return outputSpeed;
+		// if(outputVar>Outmax){outputVar=Outmax;}
+		// if(outputVar<Outmin){outputVar=Outmin;}
+		prev_error=error;
+		return outputVar;
 
 	}

@@ -81,10 +81,12 @@ int main(void)
     PIDParam.Kd=0.3; //Need to tune this
     PIDParam.Ts=200; //Ask the team what sample time they want
     PIDParam.Set_point=200; //CHANGE THIS TO AN INPUT SETPOINT VARIABLE
-    PIDParam.Anti_windup_error=10; //Need to tune this
-  	PIDParam.Outmin=0;
-  	PIDParam.Outmax=1000; //Ask the team what sample time they want
-  	PIDParam.Anti_windup=Anti_windup_enabled; //maybe make it equal to 1?
+//    PIDParam.Anti_windup_error=10; //Need to tune this
+//  	PIDParam.Outmin=0;
+//  	PIDParam.Outmax=1000; //Ask the team what sample time they want
+    PIDParam.errorThreshold=20;
+    int previous = 0;
+    float returnedOutput;
 
   	PID_init(&PIDParam);
   /* USER CODE END Init */
@@ -106,12 +108,13 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	// Some code - test 1 (will stay after code generation)
-	  if(millis()-previous>PIDParam->Ts)
-	  	{
-	  		PID_Calculation(inputSpeed, &outputSpeed);
-	  		previous=millis();
-	  					}
+	// INFINITE WHILE LOOP CODE
+
+	  if(millis()-previous > PIDParam.Ts){
+		 reuturnedOutput = PID_Calculation(inputVar); //That's the output variable to control with, call this value to get what the PID Control system returns
+	  	  }
+	  previous=millis();
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

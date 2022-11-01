@@ -24,10 +24,11 @@ typedef struct
 	float Kd;
 	float Ts;
 	float Set_point;
-	float Anti_windup_error;
-	float Outmin;
-	float Outmax;
-	int Anti_windup;
+	//float Anti_windup_error;
+	//float Outmin;
+	//float Outmax;
+	//int Anti_windup;
+	float errorThreshold;
 
 	}PID_Param_t;
 
