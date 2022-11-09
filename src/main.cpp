@@ -8,6 +8,7 @@
 
 #define loop_hertz 100
 volatile byte tflag;
+void loop_timer_int();
 
 void setup() {
   TIM_TypeDef *Instance = TIM1;
