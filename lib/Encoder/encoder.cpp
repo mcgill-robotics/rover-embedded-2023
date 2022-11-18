@@ -1,11 +1,40 @@
-
+//****************************************************************//
+// Electrical Division, Mars Rover Team of McGill Robotics
+// Authors: Vincent Boucher
+// Fall 2022
+// version: 1.0
+//  
+// AMT222C-V encoder code used in Arm system
+// Functionality:
+//            - Retrieve absolute angular position value through SPI
+//            - Reset Encoder
+//            - Calculate angular position and speed of output shaft
+//****************************************************************//
 #include <encoder.h>
 #include <SPI.h>
 
 static SPISettings encoderSettings(2000000, MSBFIRST, SPI_MODE0); //specs of our encoder
 
-Encoder::Encoder(uint8_t cs_pin){
+Encoder::Encoder(uint8_t cs_pin, float gear_ratio = 1.0f){
     chip_select = cs_pin;
+    gearRatio = gear_ratio;
+}
+
+void Encoder::calculateSpeed(){
+    angular_speed = (angular_position-last_position)/((micros()-lastTime)/1000000.0f);
+    lastTime = micros();
+}
+
+void Encoder::calculatePosition(){
+    float final_angle = (position/4095.0f) * 360.0f; //position argument's contribution to angle
+    final_angle += 360.0f * turns; //add the turns's contribution to angle
+    final_angle *= gearRatio; //transfer from input shaft to output shaft angle
+    while(final_angle < 0 || final_angle > 360){
+        final_angle += (final_angle < 0) ? 360.0f : -360.0f; //get the final_angle within 0-360 degrees
+    }
+    last_position = angular_position; //keep last value for speed calculation
+    angular_position = final_angle; //set the Encoder object's position to the calculated angle
+    calculateSpeed();
 }
 
 void Encoder::readEncoders(Encoder *encoder_list){
@@ -22,6 +51,7 @@ void Encoder::readEncoders(Encoder *encoder_list){
         encoder_list[i].turns = (int16_t) ((receive_buf && 0x3FFF0000)>>16);
         encoder_list[i].position = (uint16_t) ((receive_buf && 0x00003FFF)>>2); //position needs to be shifted right an extra 2 bits
         SPI.end();
+        encoder_list[i].calculatePosition();
     }
 }
 
