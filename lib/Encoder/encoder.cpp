@@ -15,13 +15,16 @@
 
 static SPISettings encoderSettings(2000000, MSBFIRST, SPI_MODE0); //specs of our encoder
 
-Encoder::Encoder(uint8_t cs_pin, float gear_ratio = 1.0f){
+Encoder::Encoder(uint8_t cs_pin, uint8_t mosi_pin, uint8_t miso_pin, uint8_t sclk_pin,float gear_ratio = 1.0f){
     chip_select = cs_pin;
     gearRatio = gear_ratio;
+    pinMode(mosi_pin, OUTPUT);
+    pinMode(miso_pin, INPUT);
+    pinMode(sclk_pin, OUTPUT);
 }
 
 void Encoder::calculateSpeed(){
-    angular_speed = (angular_position-last_position)/((micros()-lastTime)/1000000.0f);
+    angular_speed = ((angular_position-last_position)/(micros()-lastTime))*1000000.0f;
     lastTime = micros();
 }
 
@@ -79,7 +82,7 @@ boolean Encoder::checkbit(uint16_t *input){
 
 /* Function to get no of set bits in binary
 representation of positive integer n */
-unsigned int countSetBits(unsigned int n)
+static unsigned int countSetBits(unsigned int n)
 {
     unsigned int count = 0;
     while (n) {

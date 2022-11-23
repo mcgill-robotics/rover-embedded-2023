@@ -6,7 +6,7 @@
 class Encoder
 {
 public:
-    Encoder(uint8_t cs_pin, float gear_ratio);
+    Encoder(uint8_t cs_pin, uint8_t mosi_pin, uint8_t miso_pin, uint8_t sclk_pin,float gear_ratio = 1.0f);
     uint16_t position;
     int16_t turns;
     float angular_position;
@@ -18,6 +18,7 @@ private:
     uint8_t chip_select;
     static uint32_t receive_buf;
     static boolean checkbit(uint16_t *input);
+    static unsigned int countSetBits(unsigned int n);
     void calculatePosition();
     void calculateSpeed();
     float gearRatio;
