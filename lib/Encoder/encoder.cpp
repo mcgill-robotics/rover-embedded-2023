@@ -15,7 +15,7 @@
 
 static SPISettings encoderSettings(2000000, MSBFIRST, SPI_MODE0); //specs of our encoder
 
-Encoder::Encoder(uint8_t cs_pin, uint8_t mosi_pin, uint8_t miso_pin, uint8_t sclk_pin,float gear_ratio = 1.0f){
+Encoder::Encoder(uint8_t cs_pin, uint8_t mosi_pin, uint8_t miso_pin, uint8_t sclk_pin,float gear_ratio){
     chip_select = cs_pin;
     gearRatio = gear_ratio;
     pinMode(mosi_pin, OUTPUT);
