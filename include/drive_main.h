@@ -17,5 +17,27 @@
 #define RF_HALL_C_PIN PC_9
 #define RF_PWM_PIN PC_9
 
+#define PID_KP 1
+#define PID_KD 1
+#define PID_KI 1
+#define SETUP_TIME_DELAY 3000
+
+static volatile unsigned long lastTime = micros(); //Time of MCU when last read hall sensors
+
 void drive_setup();
 void drive_loop();
+
+//Interrupt functions
+void attachAllInterrupts();
+void lb_hall_a_int();
+void lb_hall_b_int();
+void lb_hall_c_int();
+void lf_hall_a_int();
+void lf_hall_b_int();
+void lf_hall_c_int();
+void rb_hall_a_int();
+void rb_hall_b_int();
+void rb_hall_c_int();
+void rf_hall_a_int();
+void rf_hall_b_int();
+void rf_hall_c_int();
