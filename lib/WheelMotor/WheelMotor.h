@@ -17,14 +17,13 @@ private:
     uint8_t hallBPin;
     uint8_t hallCPin;
     uint8_t PwmPin;
+    unsigned long lastTime = micros();
 
     Servo motor;
 
-    volatile float ips = 0;
-    volatile int coeff = 1;
     volatile int speed = -100;
     volatile int dir = 1;
 
-    movingAvg hallASmooth = new movingAvg(5);
+    movingAvg hallASmooth(5);
     SimpleKalmanFilter hallKalmanFilter;
 };

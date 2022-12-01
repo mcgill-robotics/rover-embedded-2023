@@ -16,5 +16,8 @@ WheelMotor::WheelMotor(uint8_t Pwmpin, uint8_t hallPinA, uint8_t hallPinB, uint8
     motor.writeMicroseconds(1500);
 
     movingAvg hallASmooth, hallBSmooth, hallCSmooth = new movingAvg(5);
-    SimpleKalmanFilter hallKalmanFilter;
+}
+
+WheelMotor::measureSpeed(){
+    
 }
