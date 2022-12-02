@@ -17,8 +17,9 @@ WheelMotor::WheelMotor(uint8_t Pwmpin, uint8_t hallPinA, uint8_t hallPinB, uint8
     pinMode(hallCPin, INPUT);
     pinMode(PwmPin, OUTPUT);
 
-    motor.attach(PwmPin);
+    motor.attach(PwmPin, 1100, 1900);
     motor.writeMicroseconds(1500);
+    // motor.write(90);
 }
 
 /// @brief Function to calculate the speed of the motor using the average_readings array.
@@ -35,6 +36,15 @@ double WheelMotor::measureSpeed(){
 /// @brief Function that writes the motor_us parameter to the motor
 void WheelMotor::writeSpeed(){
     int value = (int) motor_us;
+    value = (value > 1900) ? 1900 : value;
+    value = (value < 1100) ? 1100 : value;
+
+    motor.writeMicroseconds(value);
+}
+
+/// @brief Same as above, but it does it directly
+void WheelMotor::writeSpeedDirect(int new_us){
+    int value = (int) new_us;
     value = (value > 1900) ? 1900 : value;
     value = (value < 1100) ? 1100 : value;
 

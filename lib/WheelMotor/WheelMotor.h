@@ -1,9 +1,10 @@
 #include <Arduino.h>
-#include <Servo.h>
+#include <PWMServo.h>
 
 #define MOVING_AVG_SIZE 5
 #define BAD_HALL_COUNTER 2
 #define BAD_HALL_COUNTER_REV (BAD_HALL_COUNTER+1) * -1
+#define SETUP_DELAY_MS 3000
 
 /// @brief Instantiable class that represents a drive motor. Keeps track of speed and related variables.
 class WheelMotor
@@ -22,6 +23,7 @@ public:
 
     double measureSpeed();
     void writeSpeed();
+    void writeSpeedDirect(int new_us);
 
 private:
     uint8_t hallAPin; //Pin of Hall Sensor A
@@ -29,5 +31,5 @@ private:
     uint8_t hallCPin; //Pin of Hall Sensor C
     uint8_t PwmPin; //Pin of PWM connected to ESC
 
-    Servo motor; //Servo object used to control the motor
+    PWMServo motor; //Servo object used to control the motor
 };
