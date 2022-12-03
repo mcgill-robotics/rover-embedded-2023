@@ -17,17 +17,21 @@ WheelMotor LBMotor(LB_PWM_PIN, LB_HALL_A_PIN, LB_HALL_B_PIN, LB_HALL_C_PIN);
 // PID RFPid(&RFMotor.real_speed, &RFMotor.motor_us, &RFMotor.target_speed, PID_KP, PID_KI, PID_KD, 1);
 
 volatile float test_lb_halla, test_lb_hallb, test_lb_hallc;
+volatile unsigned long time_since;
+float percentage_sent;
 
 void drive_setup() {
   //CANbus setup?
 
   //attaches all interrupts for the hall sensors
+  Serial.println("Setting up Interrupts");
   attachAllInterrupts();
-
-  pinMode(LED_GREEN, OUTPUT);
+  Serial.println("Interrupts done");
+  delay(2000);
 
   Serial.begin(9600);
   
+  Serial.println("Setup done");
   delay(SETUP_TIME_DELAY);
 }
 
@@ -45,22 +49,72 @@ void drive_loop() {
   // RFPid.Compute();
 
   //Send the calculated speeds to the motors
-  for(int i=0; i<=400; i++){
-    LBMotor.writeSpeedDirect(1500 + i);
-      Serial.print(test_lb_halla, 2);
-  Serial.print(",");
-  Serial.print(test_lb_hallb, 2);
-  Serial.print(",");
-  Serial.println(test_lb_hallc,2);
+LBMotor.motor_us = 1500;
+LBMotor.writeSpeed();
+//Serial.println("Going Up");
+delay(2000);
+  for(int i=1500; i<=1900; i++){
+    LBMotor.motor_us = i;
+    percentage_sent = (float) (i-1500)/4.0f;
+    LBMotor.writeSpeed();
+    LBMotor.measureSpeed();
+    //Serial.print("Sending: ");
+    Serial.print(i);
+    Serial.print(",");
+    //Serial.print("us | Percentage sent: ");
+    Serial.print(percentage_sent, 2);
+    Serial.print(",");
+    //Serial.print(" | Speed Average: ");
+    Serial.print(LBMotor.real_speed, 2);
+    Serial.print(",");
+    // Serial.print("| Hall C Speed: ");
+    // Serial.print(test_lb_hallc,2);
+    //Serial.print(" | Speed Difference (Noise): ");
+    Serial.println(abs(percentage_sent-LBMotor.real_speed));
     delay(10);
   }
-  for(int i=1900; i>=1500; i++){
-    LBMotor.writeSpeedDirect(i);
-      Serial.print(test_lb_halla, 2);
-  Serial.print(",");
-  Serial.print(test_lb_hallb, 2);
-  Serial.print(",");
-  Serial.println(test_lb_hallc,2);
+//Serial.println("Going Down");
+delay(2000);
+  for(int i=1900; i>=1100; i--){
+    LBMotor.motor_us = i;
+    percentage_sent = (float) (i-1500)/4.0f;
+    LBMotor.writeSpeed();
+    LBMotor.measureSpeed();
+    //Serial.print("Sending: ");
+    Serial.print(i);
+    Serial.print(",");
+    //Serial.print("us | Percentage sent: ");
+    Serial.print(percentage_sent, 2);
+    Serial.print(",");
+    //Serial.print(" | Speed Average: ");
+    Serial.print(LBMotor.real_speed, 2);
+    Serial.print(",");
+    // Serial.print("| Hall C Speed: ");
+    // Serial.print(test_lb_hallc,2);
+    //Serial.print(" | Speed Difference (Noise): ");
+    Serial.println(test_lb_halla, 2);
+    delay(10);
+  }
+//Serial.println("Going Down");
+delay(2000);
+  for(int i=1100; i<=1500; i++){
+    LBMotor.motor_us = i;
+    percentage_sent = (float) (i-1500)/4.0f;
+    LBMotor.writeSpeed();
+    LBMotor.measureSpeed();
+    //Serial.print("Sending: ");
+    Serial.print(i);
+    Serial.print(",");
+    //Serial.print("us | Percentage sent: ");
+    Serial.print(percentage_sent, 2);
+    Serial.print(",");
+    //Serial.print(" | Speed Average: ");
+    Serial.print(LBMotor.real_speed, 2);
+    Serial.print(",");
+    // Serial.print("| Hall C Speed: ");
+    // Serial.print(test_lb_hallc,2);
+    //Serial.print(" | Speed Difference (Noise): ");
+    Serial.println(test_lb_halla, 2);
     delay(10);
   }
 
@@ -77,77 +131,59 @@ void attachAllInterrupts(){
    attachInterrupt(LB_HALL_B_PIN, lb_hall_b_int, FALLING);
    attachInterrupt(LB_HALL_C_PIN, lb_hall_c_int, FALLING);
 
-//   attachInterrupt(LF_HALL_A_PIN, lf_hall_a_int, RISING);
-//   attachInterrupt(LF_HALL_B_PIN, lf_hall_b_int, RISING);
-//   attachInterrupt(LF_HALL_C_PIN, lf_hall_c_int, RISING);
+//   attachInterrupt(LF_HALL_A_PIN, lf_hall_a_int, FALLING);
+//   attachInterrupt(LF_HALL_B_PIN, lf_hall_b_int, FALLING);
+//   attachInterrupt(LF_HALL_C_PIN, lf_hall_c_int, FALLING);
 
-//   attachInterrupt(RB_HALL_A_PIN, rb_hall_a_int, RISING);
-//   attachInterrupt(RB_HALL_B_PIN, rb_hall_b_int, RISING);
-//   attachInterrupt(RB_HALL_C_PIN, rb_hall_c_int, RISING);
+//   attachInterrupt(RB_HALL_A_PIN, rb_hall_a_int, FALLING);
+//   attachInterrupt(RB_HALL_B_PIN, rb_hall_b_int, FALLING);
+//   attachInterrupt(RB_HALL_C_PIN, rb_hall_c_int, FALLING);
 
-//   attachInterrupt(RF_HALL_A_PIN, rf_hall_a_int, RISING);
-//   attachInterrupt(RF_HALL_B_PIN, rf_hall_b_int, RISING);
-//   attachInterrupt(RF_HALL_C_PIN, rf_hall_c_int, RISING);
+//   attachInterrupt(RF_HALL_A_PIN, rf_hall_a_int, FALLING);
+//   attachInterrupt(RF_HALL_B_PIN, rf_hall_b_int, FALLING);
+//   attachInterrupt(RF_HALL_C_PIN, rf_hall_c_int, FALLING);
 }
 
 //-----------------------------------------LEFT BACK MOTOR ISRS-----------------------------------------------//
 
-// Test 1: Does micros() work inside interrupts?
-// Test 2: Is lastTime recorded properly?
-// Test 3: Is the math done correctly?
-// Test 4: Can the interrupt actually interact with the class members?
-// Test 5: Is the moving average filter working as intended?
+// Test 1: Does micros() work inside interrupts? YES
+// Test 2: Is lastTime recorded properly? YES
+// Test 3: Is the math done correctly? HOPEFULLY
+// Test 4: Can the interrupt actually interact with the class members? YES
+// Test 5: Is the moving average filter working as intended? SOMEWHAT
 void lb_hall_a_int(){
-  if(LBMotor.lastHallTriggered == 2){
-    if(LBMotor.direction_counter > BAD_HALL_COUNTER_REV) LBMotor.direction_counter--;
+  LBMotor.direction = (LBMotor.motor_us >= 1500) ? 1 : -1;
+  time_since = micros()-lastTime;
+  if(time_since > FILTER_THRESHOLD){
+    float new_value = (INT_CONSTANT * LBMotor.direction) / (time_since);
+    test_lb_halla = new_value;
+    LBMotor.average_readings[LBMotor.int_pos] = new_value;
+    if (LBMotor.int_pos++ > MOVING_AVG_SIZE) LBMotor.int_pos = 0;
   }
-  else{
-    if(LBMotor.direction_counter < BAD_HALL_COUNTER) LBMotor.direction_counter++;
-  }
-  LBMotor.direction = (LBMotor.direction_counter >= 0) ? 1 : -1;
-  LBMotor.lastHallTriggered = 1;
-
-  float new_value = (5714285.714f * LBMotor.direction) / (micros() - lastTime); //constant is degrees/interrupt *1000000us (360deg*(gearRatio/3)*1000000us) gear ratio = 1/21
-  test_lb_halla = new_value;
   lastTime = micros();
-  LBMotor.average_readings[LBMotor.int_pos] = new_value;
-  if (LBMotor.int_pos++ > MOVING_AVG_SIZE) LBMotor.int_pos = 0;
-
-  digitalWrite(LED_GREEN, HIGH);
 }
 
 void lb_hall_b_int(){
-  if(LBMotor.lastHallTriggered == 3){
-    if(LBMotor.direction_counter > BAD_HALL_COUNTER_REV) LBMotor.direction_counter--;
+  LBMotor.direction = (LBMotor.motor_us >= 1500) ? 1 : -1;
+  time_since = micros()-lastTime;
+  if(time_since > FILTER_THRESHOLD){
+    float new_value = (INT_CONSTANT * LBMotor.direction) / (time_since);
+    test_lb_hallb = new_value;
+    LBMotor.average_readings[LBMotor.int_pos] = new_value;
+    if (LBMotor.int_pos++ > MOVING_AVG_SIZE) LBMotor.int_pos = 0;
   }
-  else{
-    if(LBMotor.direction_counter < BAD_HALL_COUNTER) LBMotor.direction_counter++;
-  }
-  LBMotor.direction = (LBMotor.direction_counter >= 0) ? 1 : -1;
-  LBMotor.lastHallTriggered = 2;
-
-  float new_value = (5714285.714f * LBMotor.direction) / (micros() - lastTime); //constant is degrees/interrupt *1000000us (360deg*(gearRatio/3)*1000000us) gear ratio = 1/21
-  test_lb_hallb = new_value;
   lastTime = micros();
-  LBMotor.average_readings[LBMotor.int_pos] = new_value;
-  if (LBMotor.int_pos++ > MOVING_AVG_SIZE) LBMotor.int_pos = 0;
 }
 
 void lb_hall_c_int(){
-  if(LBMotor.lastHallTriggered == 1){
-    if(LBMotor.direction_counter > BAD_HALL_COUNTER_REV) LBMotor.direction_counter--;
+  LBMotor.direction = (LBMotor.motor_us >= 1500) ? 1 : -1;
+  time_since = micros()-lastTime;
+  if(time_since > FILTER_THRESHOLD){
+    float new_value = (INT_CONSTANT * LBMotor.direction) / (time_since);
+    LBMotor.average_readings[LBMotor.int_pos] = new_value;
+    if (LBMotor.int_pos++ > MOVING_AVG_SIZE) LBMotor.int_pos = 0;
   }
-  else{
-    if(LBMotor.direction_counter < BAD_HALL_COUNTER) LBMotor.direction_counter++;
-  }
-  LBMotor.direction = (LBMotor.direction_counter >= 0) ? 1 : -1;
-  LBMotor.lastHallTriggered = 3;
-
-  float new_value = (5714285.714f * LBMotor.direction) / (micros() - lastTime); //constant is degrees/interrupt *1000000us (360deg*(gearRatio/3)*1000000us) gear ratio = 1/21
-  test_lb_hallc = new_value;
   lastTime = micros();
-  LBMotor.average_readings[LBMotor.int_pos] = new_value;
-  if (LBMotor.int_pos++ > MOVING_AVG_SIZE) LBMotor.int_pos = 0;
 }
 
 // //-----------------------------------------LEFT FRONT MOTOR ISRS-----------------------------------------------//

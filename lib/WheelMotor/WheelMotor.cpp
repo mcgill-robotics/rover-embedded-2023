@@ -41,12 +41,3 @@ void WheelMotor::writeSpeed(){
 
     motor.writeMicroseconds(value);
 }
-
-/// @brief Same as above, but it does it directly
-void WheelMotor::writeSpeedDirect(int new_us){
-    int value = (int) new_us;
-    value = (value > 1900) ? 1900 : value;
-    value = (value < 1100) ? 1100 : value;
-
-    motor.writeMicroseconds(value);
-}
