@@ -1,4 +1,7 @@
-robtillaart/RunningAverage@^0.4.3
+linneslab/KickFFT@^3.0.0
 paulstoffregen/PWMServo@^2.1
 arduino-libraries/Servo@^1.1.8
+khoih-prog/TimerInterrupt_Generic@^1.13.0
+robtillaart/RunningAverage@^0.4.3
+kosme/arduinoFFT@^1.5.6
 br3ttb/PID@^1.2.1

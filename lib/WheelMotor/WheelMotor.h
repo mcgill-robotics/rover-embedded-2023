@@ -2,8 +2,8 @@
 #include <PWMServo.h>
 
 #define MOVING_AVG_SIZE 30
-#define FILTER_THRESHOLD 200
-#define INT_CONSTANT 29754.15628f
+#define FILTER_THRESHOLD 150
+#define INT_CONSTANT 5342.914449f
 
 /// @brief Instantiable class that represents a drive motor. Keeps track of speed and related variables.
 class WheelMotor
