@@ -69,10 +69,10 @@ public:
         
         union
         {
-            uint64_t data_64;
-            uint32_t data_32[2];
-            uint16_t data_16[4];
-            uint8_t data_8[8];
+            volatile uint64_t data_64;
+            volatile uint32_t data_32[2];
+            volatile uint16_t data_16[4];
+            volatile uint8_t data_8[8];
         };
     };
 
