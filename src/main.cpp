@@ -26,24 +26,34 @@ void setup() {
 
   canbus_timer->setOverflow(loop_hertz, HERTZ_FORMAT);
   canbus_timer->attachInterrupt(CAN_write_load);
+
+  CANBus::init(CANBus::GPIOMode::A11A12, false);
+
   #ifdef SCIENCE
+  CANBus::init_filter(0, 0, {.type = CANBus::FilterType::IDMask, .filters = {SCIENCE_ID}});
   science_setup();
   #endif
   #ifdef POWER
+  CANBus::init_filter(0, 0, {.type = CANBus::FilterType::IDMask, .filters = {POWER_ID}});
   power_setup();
   #endif
   #ifdef SENSOR
+  CANBus::init_filter(0, 0, {.type = CANBus::FilterType::IDMask, .filters = {SENSOR_ID}});
   sensor_setup();
   #endif
   #ifdef UPPER_ARM
+  CANBus::init_filter(0, 0, {.type = CANBus::FilterType::IDMask, .filters = {ARM_ID}});
   upper_arm_setup();
   #endif
   #ifdef LOWER_ARM
+  CANBus::init_filter(0, 0, {.type = CANBus::FilterType::IDMask, .filters = {ARM_ID}});
   lower_arm_setup();
   #endif
   #ifdef DRIVE
+  CANBus::init_filter(0, 0, {.type = CANBus::FilterType::IDMask, .filters = {DRIVE_ID}});
   drive_setup();
   #endif
+  CANBus::start();
   canbus_timer->resume();
 }
 
