@@ -16,6 +16,5 @@
 
 //POWER
 #define POWER_ID 1024
-
 //SENSOR
 #define SENSOR_ID 2048
