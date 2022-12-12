@@ -19,15 +19,19 @@ WheelMotor LBMotor(LB_PWM_PIN, LB_HALL_A_PIN, LB_HALL_B_PIN, LB_HALL_C_PIN);
 // PID RFPid(&RFMotor.real_speed, &RFMotor.motor_us, &RFMotor.target_speed, PID_KP, PID_KI, PID_KD, 1);
 
 const uint16_t samples = 512;
-int16_t input[samples];
-volatile uint16_t input_buffer[samples];
+int16_t input_a[samples], input_b[samples], input_c[samples];
+volatile uint16_t input_buffer_a[samples], input_buffer_b[samples], input_buffer_c[samples];
 volatile int sample_count;
 const float Fs = 2000;
-uint32_t mag[samples] = {0};
+uint32_t mag_a[samples], mag_b[samples], mag_c[samples];
+int32_t phase_a[samples], phase_b[samples], phase_c[samples];
 uint16_t startIndex = 0;
 uint16_t endIndex = 0;
-volatile uint32_t max_mag = 0;
-volatile uint32_t max_freq = 0;
+uint32_t max_mag_a, max_mag_b, max_mag_c, max_mag = 0;
+uint32_t max_freq_a, max_freq_b, max_freq_c, max_freq = 0;
+int32_t max_phase_a, max_phase_b, max_phase_c;
+int speed;
+volatile int ta, tb, tc;
 STM32Timer ITimer(TIM1);
 STM32Timer TimerSquared(TIM2);
 
@@ -39,6 +43,7 @@ volatile int16_t reading;
 
 void takeReading();
 void integrateReadings();
+void printShit();
 
 void drive_setup() {
   //CANbus setup?
@@ -80,14 +85,8 @@ void drive_loop() {
     LBMotor.motor_us = i;
     percentage_sent = (float) (i-1500)/4.0f;
     LBMotor.writeSpeed();
-    Serial.print(percentage_sent);
-    Serial.print(",");
-    Serial.print(max_mag);
-    Serial.print(",");
-    Serial.print(max_freq);
-    Serial.print(",");
-    int speed = map(max_freq, 0, 897, 0, 100);
-    Serial.println(speed);
+    speed = map(max_freq, -897, 897, -100, 100);
+    printShit();
     delay(10);
   }
 // Serial.println("Going Down");
@@ -96,14 +95,8 @@ delay(2000);
     LBMotor.motor_us = i;
     percentage_sent = (float) (i-1500)/4.0f;
     LBMotor.writeSpeed();
-    Serial.print(percentage_sent);
-    Serial.print(",");
-    Serial.print(max_mag);
-    Serial.print(",");
-    Serial.print(max_freq);
-    Serial.print(",");
-    int speed = map(max_freq, 0, 897, 0, 100);
-    Serial.println(speed);
+    speed = map(max_freq, -897, 897, -100, 100);
+    printShit();
     delay(10);
   }
 //Serial.println("Going Down");
@@ -112,17 +105,29 @@ delay(2000);
     LBMotor.motor_us = i;
     percentage_sent = (float) (i-1500)/4.0f;
     LBMotor.writeSpeed();
-    Serial.print(percentage_sent);
-    Serial.print(",");
-    Serial.print(max_mag);
-    Serial.print(",");
-    Serial.print(max_freq);
-    Serial.print(",");
-    int speed = map(max_freq, 0, 897, 0, 100);
-    Serial.println(speed);
+    speed = map(max_freq, -897, 897, -100, 100);
+    printShit();
     delay(10);
   }
 
+}
+
+void printShit(){
+    // Serial.print(max_mag);
+    // Serial.print(",");
+    // Serial.print(max_freq);
+    // Serial.print(",");
+    // for(uint16_t j = 0; j < 512; j++)
+    // {
+    //   Serial.print(mag[j]);
+    //   Serial.print(",");
+    //   Serial.println(phase[j]);
+    // }
+    Serial.print(ta);
+    Serial.print(",");
+    Serial.print(tb);
+    Serial.print(",");
+    Serial.println(tc);
 }
 
 void integrateReadings(){
@@ -130,21 +135,39 @@ void integrateReadings(){
     ITimer.disableTimer();
     ITimer.detachInterrupt();
 
-    memcpy(input, (int16_t*)input_buffer, 2 * samples);
+    memcpy(input_a, (int16_t*)input_buffer_a, 2 * samples);
+    memcpy(input_b, (int16_t*)input_buffer_b, 2 * samples);
+    memcpy(input_c, (int16_t*)input_buffer_c, 2 * samples);
     // input = input_buffer;
-    KickFFT<int16_t>::fft(Fs, 0, Fs/2, samples, input, mag, startIndex, endIndex);
+    KickFFT<int16_t>::fft(Fs, 0, Fs/2, samples, input_a, mag_a, phase_a, startIndex, endIndex);
+    KickFFT<int16_t>::fft(Fs, 0, Fs/2, samples, input_b, mag_b, phase_b, startIndex, endIndex);
+    KickFFT<int16_t>::fft(Fs, 0, Fs/2, samples, input_c, mag_c, phase_c, startIndex, endIndex);
 
     // Serial.println("Freq(Hz),Magnitude");
   
-    max_mag = 0;
-    max_freq = 0;
+    max_mag_a=0, max_mag_b=0, max_mag_c=0;
+    max_freq_a=0, max_freq_b=0, max_mag_c=0;
+
     for(uint16_t i = startIndex; i < endIndex; i++)
     {
-      if(mag[i] >= max_mag && (i != 0)){
+      if(mag_a[i] >= max_mag_a && (i != 0)){
 
-        max_mag = mag[i];
-        max_freq = (i*Fs/samples);
+        max_mag_a = mag_a[i];
+        max_freq_a = (i*Fs/samples);
+        max_phase_a = phase_a[i];
       }
+      if(mag_b[i] >= max_mag_b && (i != 0)){
+        max_mag_a = mag_a[i];
+        max_freq_b = (i*Fs/samples);
+        max_phase_b = phase_b[i];
+      }
+      if(mag_c[i] >= max_mag_c && (i != 0)){
+        max_mag_c = mag_c[i];
+        max_freq_c = (i*Fs/samples);
+        max_phase_c = phase_c[i];
+      }
+
+      max_freq = (max_freq_a + max_freq_b + max_freq_c) / 3;
 
     }
 
@@ -159,8 +182,15 @@ void integrateReadings(){
 
 void takeReading(){
   if(sample_count < samples){
-    input_buffer[sample_count] = digitalRead(LB_HALL_A_PIN);
+    input_buffer_a[sample_count] = digitalRead(LB_HALL_A_PIN);
+    input_buffer_b[sample_count] = digitalRead(LB_HALL_B_PIN);
+    input_buffer_c[sample_count] = digitalRead(LB_HALL_C_PIN);
+    ta = input_buffer_a[sample_count];
+    tb = input_buffer_b[sample_count];
+    tc = input_buffer_c[sample_count];
     sample_count++;
+
+
   }
 }
 
