@@ -66,8 +66,8 @@ void drive_setup() {
 LBMotor.writeSpeed();
   Serial.println("Setup done");
   delay(SETUP_TIME_DELAY);
-    LBMotor.motor_us = 1750;
-  LBMotor.writeSpeed();
+    // LBMotor.motor_us = 1750;
+  // LBMotor.writeSpeed();
 
   ITimer.attachInterruptInterval(500, takeReading);
   TimerSquared.attachInterruptInterval(500 * samples, integrateReadings);
@@ -91,7 +91,7 @@ void drive_loop() {
     LBMotor.motor_us = i;
     percentage_sent = (float) (i-1500)/4.0f;
     LBMotor.writeSpeed();
-    speed = map(max_freq, 0, 897, 0, 100);
+    speed = map(max_freq, -897, 897, -100, 100);
     printShit();
     delay(10);
   }
@@ -111,7 +111,7 @@ delay(2000);
     LBMotor.motor_us = i;
     percentage_sent = (float) (i-1500)/4.0f;
     LBMotor.writeSpeed();
-    speed = map(max_freq, 0, 897, 0, 100);
+    speed = map(max_freq, -897, 897, -100, 100);
     printShit();
     delay(10);
   }
