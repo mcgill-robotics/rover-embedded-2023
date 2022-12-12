@@ -123,40 +123,6 @@ delay(2000);
     delay(10);
   }
 
-  // LFMotor.writeSpeed();
-  // RBMotor.writeSpeed();
-  // RFMotor.writeSpeed();
-
-  // if(sample_count == samples){
-  //   ITimer.disableTimer();
-  //   ITimer.detachInterrupt();
-
-  //   memcpy(input, (int16_t*)input_buffer, 1024);
-  //   // input = input_buffer;
-  //   KickFFT<int16_t>::fft(Fs, 0, Fs/2, samples, input, mag, startIndex, endIndex);
-
-  //   // Serial.println("Freq(Hz),Magnitude");
-  
-  //   uint32_t max_mag = 0;
-  //   uint32_t max_freq = 0;
-  //   for(uint16_t i = startIndex; i < endIndex; i++)
-  //   {
-  //     if(mag[i] >= max_mag && (i != 0)){
-
-  //       max_mag = mag[i];
-  //       max_freq = (i*Fs/samples);
-  //     }
-
-  //   }
-
-  //   Serial.print(max_mag);
-  //   Serial.print(",");
-  //   Serial.println(max_freq);
-  //   sample_count = 0;
-  //   ITimer.attachInterruptInterval(500, takeReading);
-  //   ITimer.enableTimer();
-  // }
-
 }
 
 void integrateReadings(){
