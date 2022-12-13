@@ -18,7 +18,7 @@ public:
     volatile float average_readings[MOVING_AVG_SIZE] = {0.0f};
     double target_speed = 0; //Target Speed of motor received by communications (Range is -100.0f to 100.0f)
     double real_speed = 0; //Real speed of motor (in deg/s)
-    volatile double motor_us = 1500;
+    double motor_us = 1500;
 
     double measureSpeed();
     void writeSpeed();

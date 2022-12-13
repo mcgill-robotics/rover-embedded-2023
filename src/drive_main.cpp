@@ -5,15 +5,16 @@
 #include "WheelMotor.h"
 #include "KickFFT.h"
 #include "TimerInterrupt_Generic.h"
-// #include "PID_v1.h"
+#include "PID_v1.h"
 
 // Something inside here is clobbering something
 WheelMotor LBMotor(LB_PWM_PIN, LB_HALL_A_PIN, LB_HALL_B_PIN, LB_HALL_C_PIN);
 // WheelMotor LFMotor(LF_PWM_PIN, LF_HALL_A_PIN, LF_HALL_B_PIN, LF_HALL_C_PIN);
 // WheelMotor RBMotor(RB_PWM_PIN, RB_HALL_A_PIN, RB_HALL_B_PIN, RB_HALL_C_PIN);
 // WheelMotor RFMotor(RF_PWM_PIN, RF_HALL_A_PIN, RF_HALL_B_PIN, RF_HALL_C_PIN);
+double real_speed, motor_us, target_speed;
 
-// PID LBPid(&LBMotor.real_speed, &LBMotor.motor_us, &LBMotor.target_speed, PID_KP, PID_KI, PID_KD, 1);
+// PID LBPid(&real_speed, &motor_us, &target_speed, PID_KP, PID_KI, PID_KD, 1);
 // PID LFPid(&LFMotor.real_speed, &LFMotor.motor_us, &LFMotor.target_speed, PID_KP, PID_KI, PID_KD, 1);
 // PID RBPid(&RBMotor.real_speed, &RBMotor.motor_us, &RBMotor.target_speed, PID_KP, PID_KI, PID_KD, 1);
 // PID RFPid(&RFMotor.real_speed, &RFMotor.motor_us, &RFMotor.target_speed, PID_KP, PID_KI, PID_KD, 1);
@@ -22,7 +23,7 @@ const uint16_t samples = 512;
 int16_t input[samples];
 volatile uint16_t input_buffer[samples];
 volatile int sample_count;
-const float Fs = 2000;
+const float Fs = 32000;
 uint32_t mag[samples] = {0};
 uint32_t phase[samples] = {0};
 uint16_t startIndex = 0;
@@ -33,6 +34,8 @@ volatile uint16_t halla, hallb, hallc;
 int speed;
 uint16_t freqs_cpy[samples], phases_cpy[samples], mags_cpy[samples];
 enum directionStates{AWAITING_AB, AWAITING_SECOND_SIGNAL, FORWARD_PLAUSIBLE, BACKWARD_PLAUSIBLE, FORWARD_DECIDED, BACKWARD_DECIDED};
+enum directions{FORWARDS=1, BACKWARDS=-1};
+volatile int currentDirection = FORWARDS;
 volatile int currentState = AWAITING_AB;
 volatile int forward_estimations, backward_estimations;
 
@@ -61,16 +64,16 @@ void drive_setup() {
   delay(2000);
 
   Serial.begin(9600);
-  
-  LBMotor.motor_us = 1500;
-LBMotor.writeSpeed();
+  target_speed = 1800;
+  // LBMotor.writeSpeed();
   Serial.println("Setup done");
   delay(SETUP_TIME_DELAY);
+  delay(2000);
     // LBMotor.motor_us = 1750;
   // LBMotor.writeSpeed();
-
-  ITimer.attachInterruptInterval(500, takeReading);
-  TimerSquared.attachInterruptInterval(500 * samples, integrateReadings);
+  int sampling_period = (int) (1000000 / Fs); 
+  ITimer.attachInterruptInterval(sampling_period, takeReading);
+  TimerSquared.attachInterruptInterval(sampling_period * samples, integrateReadings);
 
 }
 
@@ -81,17 +84,24 @@ void drive_loop() {
   // RBMotor.measureSpeed();
   // RFMotor.measureSpeed();
 
+  // speed = map(max_freq, -897, 897, -100, 100);
+  // real_speed = speed;
+
   //Compute the PID calculations to get an updated value to send to the motors
   // LBPid.Compute();
   // LFPid.Compute();
   // RBPid.Compute();
   // RFPid.Compute();
+  // LBMotor.writeSpeed();
 
   for(int i=1500; i<=1900; i++){
-    LBMotor.motor_us = i;
+    // LBMotor.motor_us = i;
     percentage_sent = (float) (i-1500)/4.0f;
+    LBMotor.motor_us = i;
     LBMotor.writeSpeed();
     speed = map(max_freq, -897, 897, -100, 100);
+    if(abs(speed) > 150) speed = 0;
+    // LBMotor.real_speed = speed;
     printShit();
     delay(10);
   }
@@ -102,6 +112,8 @@ delay(2000);
     percentage_sent = (float) (i-1500)/4.0f;
     LBMotor.writeSpeed();
     speed = map(max_freq, -897, 897, -100, 100);
+    if(abs(speed) > 150) speed = 0;
+    // LBMotor.real_speed = speed;
     printShit();
     delay(10);
   }
@@ -112,6 +124,8 @@ delay(2000);
     percentage_sent = (float) (i-1500)/4.0f;
     LBMotor.writeSpeed();
     speed = map(max_freq, -897, 897, -100, 100);
+    if(abs(speed) > 150) speed = 0;
+    // LBMotor.real_speed = speed;
     printShit();
     delay(10);
   }
@@ -135,9 +149,10 @@ void printShit(){
 }
 
 void integrateReadings(){
-  if(sample_count == samples){
+    if(sample_count >= samples)
+    {
     ITimer.disableTimer();
-    ITimer.detachInterrupt();
+    // ITimer.detachInterrupt();
 
     memcpy(input, (int16_t*)input_buffer, 2 * samples);
     // input = input_buffer;
@@ -158,19 +173,34 @@ void integrateReadings(){
       }
 
     }
+    bool forwards = true;
 
-    if (backward_estimations - forward_estimations <= 0) max_freq *= (-1);
+    if(backward_estimations <= forward_estimations){
+      if(currentDirection == FORWARDS && abs(max_freq) < 300){
+        currentDirection = BACKWARDS;
+      }
+    }else if(forward_estimations <= backward_estimations){
+      if(currentDirection == BACKWARDS && abs(max_freq) < 300){
+        currentDirection = FORWARDS;
+      }
+    }
+    max_freq *= (currentDirection);
+
+    if ((backward_estimations - forward_estimations <= 0) && max_freq < 300){
+      forwards = false;
+    }
+    else if(forward_estimations - backward_estimations <= 0 && max_freq > 300){
+
+    }
+    
     forward_estimations = 0;
     backward_estimations = 0;
 
-    // Serial.print(max_mag);
-    // Serial.print(",");
-    // Serial.println(max_freq);
     sample_count = 0;
-    ITimer.attachInterruptInterval(500, takeReading);
+    // ITimer.attachInterruptInterval(1000000/Fs, takeReading);
     ITimer.enableTimer();
+    }
   }
-}
 
 void takeReading(){
   if(sample_count < samples){
@@ -178,7 +208,7 @@ void takeReading(){
     int B = digitalRead(LB_HALL_B_PIN);
     int C = digitalRead(LB_HALL_C_PIN);
 
-    input_buffer[sample_count] = digitalRead(LB_HALL_A_PIN);
+    input_buffer[sample_count] = A;
     sample_count++;
 
     int AB = (A & B) & (~C);
