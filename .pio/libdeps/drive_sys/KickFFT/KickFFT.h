@@ -111,10 +111,10 @@ public:
 	
 	static void fft(uint16_t samples, const Type data[], uint32_t mag[]);
 		
-	static void fft(float fs, float f1, float f2, uint16_t samples, const Type data[], uint32_t mag[], uint32_t phase[]);
+	static void fft(float fs, float f1, float f2, uint16_t samples, const Type data[], uint32_t mag[]);
 	
 	static void fft(float fs, float f1, float f2, uint16_t samples, const Type data[],
-					uint32_t mag[], uint32_t phase[], uint16_t &startIndex, uint16_t &endIndex);
+					uint32_t mag[], uint16_t &startIndex, uint16_t &endIndex);
 	
 	static void psd(float fs, float f1, float f2, uint16_t samples, const Type data[], uint32_t mag[]);
 	
@@ -218,7 +218,7 @@ void KickFFT<Type>::fft(uint16_t samples, const Type data[], uint32_t mag[])
 //
 //Computes the DFT across the range f1 to f2
 template<typename Type>
-void KickFFT<Type>::fft(float fs, float f1, float f2, uint16_t samples, const Type data[], uint32_t mag[], uint32_t phase[])
+void KickFFT<Type>::fft(float fs, float f1, float f2, uint16_t samples, const Type data[], uint32_t mag[])
 {
 	//changes f1 and f2 to indices
 	//fs/samples gives the increments of frequency on the x-axis
@@ -279,7 +279,6 @@ void KickFFT<Type>::fft(float fs, float f1, float f2, uint16_t samples, const Ty
 		//calculating magnitude of the data by taking the square root of the
 		//sum of the squares of the real and imaginary component of each signal
 		mag[i] = KickMath<signed long int>::calcMagnitude(real, imag);
-		phase[i] = std::atan2(imag, real) * 180.0f/(PI);
 	}
 }
 
@@ -305,7 +304,7 @@ void KickFFT<Type>::fft(float fs, float f1, float f2, uint16_t samples, const Ty
 //here <https://en.wikipedia.org/wiki/Discrete_Fourier_transform#Definition>
 template<typename Type>
 void KickFFT<Type>::fft(float fs, float f1, float f2, uint16_t samples, const Type data[],
-						uint32_t mag[], uint32_t phase[], uint16_t &startIndex, uint16_t &endIndex)
+						uint32_t mag[], uint16_t &startIndex, uint16_t &endIndex)
 {
 	//changes f1 and f2 to indices
 	//fs/samples gives the increments of frequency on the x-axis
@@ -367,7 +366,6 @@ void KickFFT<Type>::fft(float fs, float f1, float f2, uint16_t samples, const Ty
 		//calculating magnitude of the data by taking the square root of the
 		//sum of the squares of the real and imaginary component of each signal
 		mag[i] = KickMath<signed long int>::calcMagnitude(real, imag);
-		phase[i] = std::atan2(imag, real) * 180.0f/(PI);
 	}
 }
 
