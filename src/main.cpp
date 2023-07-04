@@ -10,7 +10,7 @@ void setup() {
   #ifdef SCIENCE
   science_setup();
   #endif
-  #ifdef POWER
+  #ifdef POWER_SYS
   power_setup();
   #endif
   #ifdef KILLSWITCH
@@ -31,7 +31,7 @@ void loop() {
   #ifdef SCIENCE
   science_loop();
   #endif
-  #ifdef POWER
+  #ifdef POWER_SYS
   power_loop();
   #endif
   #ifdef KILLSWITCH

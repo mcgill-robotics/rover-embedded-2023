@@ -1,9 +1,6 @@
-// #ifdef KILLSWITCH //LEAVE THIS AT THE TOP OF THIS FILE
+#ifdef KILLSWITCH //LEAVE THIS AT THE TOP OF THIS FILE
 
-#include <Arduino.h>
 #include "killswitch.h"
-#include "ros.h"
-#include "std_msgs/Float32MultiArray.h"
 
 float currents[2];
 std_msgs::Float32MultiArray currentsMsg;
@@ -40,6 +37,7 @@ void killswitch_setup() {
   analogReadResolution(12);
 
   currentsMsg.data = currents;
+  currentsMsg.data_length = 2;
   nh.initNode();
   nh.advertise(pub);
 }
@@ -76,4 +74,4 @@ void readCurrents(){
   //TODO: equations for currents and adding to array
 }
 
-// #endif //LEAVE THIS AT THE BOTTOM OF THIS FILE
+#endif //LEAVE THIS AT THE BOTTOM OF THIS FILE

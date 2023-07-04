@@ -1,4 +1,6 @@
 #include <Arduino.h>
+#include "ros.h"
+#include "std_msgs/Float32MultiArray.h"
 
 #define B1a_A_Pin 1
 #define B1a_B_Pin 2
