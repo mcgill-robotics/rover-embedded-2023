@@ -22,7 +22,7 @@ void power_setup();
 void power_loop();
 
 
-void msgCB(const std_msgs::Float32MultiArray& input_msg);
+void msgCBPower(const std_msgs::Float32MultiArray& input_msg);
 void readAllCurrents();
 void moveServos();
 void writeRelays();

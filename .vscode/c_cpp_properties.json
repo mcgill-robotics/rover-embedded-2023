@@ -10,6 +10,7 @@
             "includePath": [
                 "c:/Users/vince/Documents/GitHub/rover-embedded-2023/include",
                 "c:/Users/vince/Documents/GitHub/rover-embedded-2023/src",
+                "C:/Users/vince/.platformio/packages/framework-arduinoteensy/libraries/PWMServo",
                 "c:/Users/vince/Documents/GitHub/rover-embedded-2023/.pio/libdeps/drive/Rosserial Arduino Library/src",
                 "C:/Users/vince/.platformio/packages/framework-arduinoteensy/libraries/Ethernet/src",
                 "C:/Users/vince/.platformio/packages/framework-arduinoteensy/libraries/SPI",
@@ -71,7 +72,6 @@
                 "C:/Users/vince/.platformio/packages/framework-arduinoteensy/libraries/OneWire",
                 "C:/Users/vince/.platformio/packages/framework-arduinoteensy/libraries/PS2Keyboard",
                 "C:/Users/vince/.platformio/packages/framework-arduinoteensy/libraries/PS2Keyboard/utility",
-                "C:/Users/vince/.platformio/packages/framework-arduinoteensy/libraries/PWMServo",
                 "C:/Users/vince/.platformio/packages/framework-arduinoteensy/libraries/Ping",
                 "C:/Users/vince/.platformio/packages/framework-arduinoteensy/libraries/PulsePosition",
                 "C:/Users/vince/.platformio/packages/framework-arduinoteensy/libraries/QuadEncoder",
@@ -118,6 +118,7 @@
                 "path": [
                     "c:/Users/vince/Documents/GitHub/rover-embedded-2023/include",
                     "c:/Users/vince/Documents/GitHub/rover-embedded-2023/src",
+                    "C:/Users/vince/.platformio/packages/framework-arduinoteensy/libraries/PWMServo",
                     "c:/Users/vince/Documents/GitHub/rover-embedded-2023/.pio/libdeps/drive/Rosserial Arduino Library/src",
                     "C:/Users/vince/.platformio/packages/framework-arduinoteensy/libraries/Ethernet/src",
                     "C:/Users/vince/.platformio/packages/framework-arduinoteensy/libraries/SPI",
@@ -179,7 +180,6 @@
                     "C:/Users/vince/.platformio/packages/framework-arduinoteensy/libraries/OneWire",
                     "C:/Users/vince/.platformio/packages/framework-arduinoteensy/libraries/PS2Keyboard",
                     "C:/Users/vince/.platformio/packages/framework-arduinoteensy/libraries/PS2Keyboard/utility",
-                    "C:/Users/vince/.platformio/packages/framework-arduinoteensy/libraries/PWMServo",
                     "C:/Users/vince/.platformio/packages/framework-arduinoteensy/libraries/Ping",
                     "C:/Users/vince/.platformio/packages/framework-arduinoteensy/libraries/PulsePosition",
                     "C:/Users/vince/.platformio/packages/framework-arduinoteensy/libraries/QuadEncoder",

@@ -4,17 +4,17 @@
 
 #define CURRENT_SENSOR_CONSTANT 0.00201416015625 //3.3/(0.002 * 200.0 * 4096.0), PIN_VOLTAGE/(RESISTOR_VALUE * GAIN_CURRENT_SENSOR * ANALOG_RESOLUTION)
 
-float currents[8];
+float currentsPower[8];
 float angles[2];
 int relays[4] = {0};
 PWMServo servo1;
 PWMServo servo2;
 
-std_msgs::Float32MultiArray currentsMsg;
+std_msgs::Float32MultiArray currentPowerMsg;
 std_msgs::Float32MultiArray cmdMsg;
-ros::NodeHandle nh;
-ros::Publisher pub("currentPower", &currentsMsg);
-ros::Subscriber<std_msgs::Float32MultiArray> sub("powerCmd", msgCB);
+ros::NodeHandle nhPower;
+ros::Publisher pubPower("currentPower", &currentPowerMsg);
+ros::Subscriber<std_msgs::Float32MultiArray> subPower("powerCmd", msgCBPower);
 
 void power_setup() {
   // put your setup code here, to run once:
@@ -41,34 +41,35 @@ void power_setup() {
   servo1.write(0);
   servo2.write(0);
 
-  currentsMsg.data = currents;
-  currentsMsg.data_length = 8;
+  currentPowerMsg.data = currentsPower;
+  currentPowerMsg.data_length = 8;
+  cmdMsg.data_length = 6;
 
-  nh.initNode();
-  nh.advertise(pub);
-  nh.subscribe(sub);
+  nhPower.initNode();
+  nhPower.advertise(pubPower);
+  nhPower.subscribe(subPower);
 }
 
 void power_loop() {
   readAllCurrents();
 
-  pub.publish(&currentsMsg);
+  pubPower.publish(&currentPowerMsg);
 
   moveServos();
   writeRelays();
 
-  nh.spinOnce();
+  nhPower.spinOnce();
 }
 
 void readAllCurrents(){
-  currents[0] = analogRead(Drive_Curr_1_Pin) * CURRENT_SENSOR_CONSTANT;
-  currents[1] = analogRead(Drive_Curr_2_Pin) * CURRENT_SENSOR_CONSTANT;
-  currents[2] = analogRead(Drive_Curr_3_Pin) * CURRENT_SENSOR_CONSTANT;
-  currents[3] = analogRead(Drive_Curr_4_Pin) * CURRENT_SENSOR_CONSTANT;
-  currents[4] = analogRead(Arm12_Curr_Pin) * CURRENT_SENSOR_CONSTANT;
-  currents[5] = analogRead(Arm24_Curr_Pin) * CURRENT_SENSOR_CONSTANT;
-  currents[6] = analogRead(Sci12_Curr_Pin) * CURRENT_SENSOR_CONSTANT;
-  currents[7] = analogRead(Sci5_Curr_Pin) * CURRENT_SENSOR_CONSTANT;
+  currentsPower[0] = analogRead(Drive_Curr_1_Pin) * CURRENT_SENSOR_CONSTANT;
+  currentsPower[1] = analogRead(Drive_Curr_2_Pin) * CURRENT_SENSOR_CONSTANT;
+  currentsPower[2] = analogRead(Drive_Curr_3_Pin) * CURRENT_SENSOR_CONSTANT;
+  currentsPower[3] = analogRead(Drive_Curr_4_Pin) * CURRENT_SENSOR_CONSTANT;
+  currentsPower[4] = analogRead(Arm12_Curr_Pin) * CURRENT_SENSOR_CONSTANT;
+  currentsPower[5] = analogRead(Arm24_Curr_Pin) * CURRENT_SENSOR_CONSTANT;
+  currentsPower[6] = analogRead(Sci12_Curr_Pin) * CURRENT_SENSOR_CONSTANT;
+  currentsPower[7] = analogRead(Sci5_Curr_Pin) * CURRENT_SENSOR_CONSTANT;
 
 }
 
@@ -84,7 +85,7 @@ void writeRelays(){
   digitalWrite(Arm_24V_Pin, relays[3]);
 }
 
-void msgCB(const std_msgs::Float32MultiArray& input_msg){
+void msgCBPower(const std_msgs::Float32MultiArray& input_msg){
   if(input_msg.data_length != 6) return;
   angles[0] = input_msg.data[0];
   angles[1] = input_msg.data[1];
