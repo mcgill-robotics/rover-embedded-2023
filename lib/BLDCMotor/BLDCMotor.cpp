@@ -8,8 +8,7 @@ static float32_t mag_real[SAMPLE_COUNT / 2];
 static float32_t mag[SAMPLE_COUNT];
 static float32_t max_value;
 static uint32_t max_index;
-float mapFloat(int x, float in_min, float in_max, float out_min, float out_max);
-float32_t fourierTransform(float* input_queue, arm_rfft_fast_instance_f32 * fft);
+
 
 static const float32_t fir_kernel[KERNSIZE+1] = {
 0.01680672, 0.02205882, 0.02731092, 0.03256303, 0.03781513, 0.04306723,

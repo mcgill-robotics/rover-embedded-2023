@@ -1,9 +1,13 @@
+#ifndef BLDCMotor_h
+#define BLDCMotor_h
+
 #include <Arduino.h>
 #include <Servo.h>
 #include <arm_math.h>
 #include "Deque.h"
 //via library manager
 #include "TeensyTimerInterrupt_Generic.h"
+
 
 
 #define DIRECTIONBUFFER 15
@@ -55,3 +59,5 @@ TeensyTimer ITimer(TEENSY_TIMER_1);
 
 float mapFloat(int x, float in_min, float in_max, float out_min, float out_max);
 float32_t fourierTransform(float* input_queue, arm_rfft_fast_instance_f32 * fft);
+
+#endif
