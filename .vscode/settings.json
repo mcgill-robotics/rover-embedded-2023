@@ -1,7 +1,4 @@
 {
-<<<<<<< Updated upstream
-    "C_Cpp.errorSquiggles": "Enabled"
-=======
     "C_Cpp.errorSquiggles": "Enabled",
     "files.associations": {
         "streambuf": "cpp",
@@ -64,5 +61,4 @@
         "cinttypes": "cpp",
         "typeinfo": "cpp"
     }
->>>>>>> Stashed changes
 }
