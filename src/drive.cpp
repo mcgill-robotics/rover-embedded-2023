@@ -5,94 +5,61 @@
 #include <arm_math.h>
 #include "BLDCMotor.h"
 
-
 WheelMotor LBMotor(LB_PWM_PIN, LB_HALL_A_PIN, LB_HALL_B_PIN, LB_HALL_C_PIN);
 WheelMotor LFMotor(LF_PWM_PIN, LF_HALL_A_PIN, LF_HALL_B_PIN, LF_HALL_C_PIN);
 WheelMotor RBMotor(RB_PWM_PIN, RB_HALL_A_PIN, RB_HALL_B_PIN, RB_HALL_C_PIN);
 WheelMotor RFMotor(RF_PWM_PIN, RF_HALL_A_PIN, RF_HALL_B_PIN, RF_HALL_C_PIN);
 
-
-const int sampling_period = (int) (1000000 / SAMPLING_FREQUENCY);
-enum directions{FORWARDS=1, BACKWARDS=-1};
-volatile bool ledOn = false;
-
-unsigned long cycles = 0;
-
-void takeReading();
-void integrateReadings();
-void printPercent(int i);
+TeensyTimer ITimer(TEENSY_TIMER_1);
 
 void drive_setup() {
-  // put your setup code here, to run once:
 
-  integrateReadings();
+  LBMotor.resetMotor(); 
+  LFMotor.resetMotor();
+  RBMotor.resetMotor(); 
+  RFMotor.resetMotor();
 
-  LBMotor.writeSpeed(); 
-  LFMotor.writeSpeed();
-  RBMotor.writeSpeed(); 
-  RFMotor.writeSpeed();
-
-  Serial.println("Setup done");
-
-  delay(SETUP_TIME_DELAY);
-
-  ITimer.attachInterruptInterval(sampling_period, takeReading);
+  ITimer.attachInterruptInterval(1000000 / SAMPLING_FREQUENCY, takeReadings);
   attachAllInterrupts();
 }
 
-float speed_cmd = 1500;
 void drive_loop() {
-  // put your main code here, to run repeatedly:
+  measureSpeeds();
 
-  //Measure speed of all the motors
-  integrateReadings();
+  updateControllers();
 
-  if(Serial.available()){
-  speed_cmd = Serial.parseFloat(); 
-  Serial.println(speed_cmd);
- }
+  writeSpeeds();
 
-  LBMotor.motor_us = LBMotor.update(speed_cmd);
+  //Send feedback message
+}
+
+void measureSpeeds(){
+  LBMotor.measureSpeed(ITimer);
+  LFMotor.measureSpeed(ITimer);
+  RBMotor.measureSpeed(ITimer);
+  RFMotor.measureSpeed(ITimer);
+}
+
+void takeReadings(){
+  LFMotor.takeReading();
+	LBMotor.takeReading();
+	RFMotor.takeReading();
+	RBMotor.takeReading();
+}
+
+void writeSpeeds(){
+  LFMotor.writeSpeed();
   LBMotor.writeSpeed();
-  cycles++; 
-  //don't think we actually need this delay
-  delay(10);
-  //speed sweep: 
-
-  for(int i = 1900; i >= 1100; i--){
-    integrateReadings();
-    LBMotor.motor_us = i;
-    LBMotor.writeSpeed();
-    printPercent(i);
-    delay(10);
-  }
-
-  for(int i = 1100; i < 1500; i++){
-    integrateReadings();
-    LBMotor.motor_us = i;
-    LBMotor.writeSpeed();
-    printPercent(i);
-    delay(10);
-  }
+  RFMotor.writeSpeed();
+  RBMotor.writeSpeed();
 }
 
-void printPercent(int i){
-  float percentage_sent = (i - 1500) / 4;
-  Serial.print(percentage_sent);
-  Serial.print(", ");
-  Serial.println(LBMotor.real_speed);
+void updateControllers(){
+  LFMotor.update();
+  LBMotor.update();
+  RFMotor.update();
+  RBMotor.update();
 }
-
-void integrateReadings(){
-  LBMotor.measureSpeed();
-  LFMotor.measureSpeed();
-  RBMotor.measureSpeed();
-  RFMotor.measureSpeed();
-}
-
-/* -------------------------------------------------------------------------- */
-/*                             Interrupt functions                            */
-/* -------------------------------------------------------------------------- */
 
 void attachAllInterrupts(){
   attachInterrupt(LB_HALL_A_PIN, lb_hall_a_int, CHANGE);
@@ -112,20 +79,9 @@ void attachAllInterrupts(){
   attachInterrupt(RF_HALL_C_PIN, rf_hall_c_int, CHANGE);
 }
 
-void takeReading(){
-  LFMotor.takeReading();
-	LFMotor.takeReading2();
-	LFMotor.takeReading3();
-	LBMotor.takeReading();
-	LBMotor.takeReading2();
-	LBMotor.takeReading3();
-	RFMotor.takeReading();
-	RFMotor.takeReading2();
-	RFMotor.takeReading3();
-	RBMotor.takeReading();
-	RBMotor.takeReading2();
-	RBMotor.takeReading3();
-}
+/* -------------------------------------------------------------------------- */
+/*                             Interrupt functions                            */
+/* -------------------------------------------------------------------------- */
 
 void lb_hall_a_int(){
   LBMotor.readingA = digitalRead(LB_HALL_A_PIN);

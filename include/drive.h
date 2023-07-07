@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "BLDCMotor.h"
 
 #define LB_HALL_A_PIN 23
 #define LB_HALL_B_PIN 22
@@ -17,15 +18,16 @@
 #define RF_HALL_C_PIN 12
 #define RF_PWM_PIN 2
 
-#define PID_KP 1
-#define PID_KD 1
-#define PID_KI 1
 #define SETUP_TIME_DELAY 1000
 
 void drive_setup();
 void drive_loop();
 
 void attachAllInterrupts();
+void measureSpeeds();
+void takeReadings();
+void updateControllers();
+void writeSpeeds();
 void lb_hall_a_int();
 void lb_hall_b_int();
 void lb_hall_c_int();
