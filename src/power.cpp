@@ -2,6 +2,8 @@
 
 #include "power.h"
 
+#define CURRENT_SENSOR_CONSTANT 0.00201416015625 //3.3/(0.002 * 200.0 * 4096.0), PIN_VOLTAGE/(RESISTOR_VALUE * GAIN_CURRENT_SENSOR * ANALOG_RESOLUTION)
+
 float currents[8];
 float angles[2];
 int relays[4] = {0};
