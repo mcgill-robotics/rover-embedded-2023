@@ -122,7 +122,7 @@ float32_t fourierTransform(float32_t input_queue[SAMPLE_COUNT], arm_rfft_fast_in
     ITimer.stopTimer();
     //Copy SAMPLE_COUNT number of samples from the input data queue into the fft_buffer
     std::copy(input_queue, input_queue + SAMPLE_COUNT, fft_buffer_vector);
-    ITimer.startTimer();
+    ITimer.restartTimer();
 
     // Serial.println("Exiting input_queue buffer copy");
 
