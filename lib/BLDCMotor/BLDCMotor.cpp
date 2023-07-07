@@ -100,7 +100,7 @@ void WheelMotor::writeSpeed(){
 float32_t fourierTransform(float* input_queue, arm_rfft_fast_instance_f32 * fft, TeensyTimer timer){
     timer.stopTimer();
     std::copy(input_queue, input_queue + SAMPLE_COUNT, fft_buffer_vector);
-    timer.restartTimer();
+    timer.resumeTimer();
 
     arm_rfft_fast_f32(fft, fft_buffer_vector, mag, 0);
 
