@@ -10,13 +10,10 @@
             "includePath": [
                 "C:/Users/samue/OneDrive/McGill/McGill Robotics 2022-2023/Github_Rover/rover-embedded-2023/include",
                 "C:/Users/samue/OneDrive/McGill/McGill Robotics 2022-2023/Github_Rover/rover-embedded-2023/src",
-<<<<<<< Updated upstream
                 "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/PWMServo",
                 "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/Servo",
                 "C:/Users/samue/OneDrive/McGill/McGill Robotics 2022-2023/Github_Rover/rover-embedded-2023/.pio/libdeps/drive/PID",
                 "C:/Users/samue/OneDrive/McGill/McGill Robotics 2022-2023/Github_Rover/rover-embedded-2023/.pio/libdeps/drive/TimerInterrupt_Generic/src",
-=======
->>>>>>> Stashed changes
                 "C:/Users/samue/OneDrive/McGill/McGill Robotics 2022-2023/Github_Rover/rover-embedded-2023/.pio/libdeps/drive/Rosserial Arduino Library/src",
                 "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/Ethernet/src",
                 "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/SPI",
@@ -78,10 +75,6 @@
                 "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/OneWire",
                 "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/PS2Keyboard",
                 "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/PS2Keyboard/utility",
-<<<<<<< Updated upstream
-=======
-                "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/PWMServo",
->>>>>>> Stashed changes
                 "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/Ping",
                 "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/PulsePosition",
                 "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/QuadEncoder",
@@ -93,10 +86,6 @@
                 "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/ST7735_t3/src",
                 "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/SdFat/src",
                 "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/SerialFlash",
-<<<<<<< Updated upstream
-=======
-                "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/Servo",
->>>>>>> Stashed changes
                 "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/ShiftPWM",
                 "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/Snooze/src",
                 "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/SoftPWM",
@@ -131,13 +120,10 @@
                 "path": [
                     "C:/Users/samue/OneDrive/McGill/McGill Robotics 2022-2023/Github_Rover/rover-embedded-2023/include",
                     "C:/Users/samue/OneDrive/McGill/McGill Robotics 2022-2023/Github_Rover/rover-embedded-2023/src",
-<<<<<<< Updated upstream
                     "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/PWMServo",
                     "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/Servo",
                     "C:/Users/samue/OneDrive/McGill/McGill Robotics 2022-2023/Github_Rover/rover-embedded-2023/.pio/libdeps/drive/PID",
                     "C:/Users/samue/OneDrive/McGill/McGill Robotics 2022-2023/Github_Rover/rover-embedded-2023/.pio/libdeps/drive/TimerInterrupt_Generic/src",
-=======
->>>>>>> Stashed changes
                     "C:/Users/samue/OneDrive/McGill/McGill Robotics 2022-2023/Github_Rover/rover-embedded-2023/.pio/libdeps/drive/Rosserial Arduino Library/src",
                     "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/Ethernet/src",
                     "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/SPI",
@@ -199,10 +185,6 @@
                     "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/OneWire",
                     "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/PS2Keyboard",
                     "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/PS2Keyboard/utility",
-<<<<<<< Updated upstream
-=======
-                    "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/PWMServo",
->>>>>>> Stashed changes
                     "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/Ping",
                     "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/PulsePosition",
                     "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/QuadEncoder",
@@ -214,10 +196,6 @@
                     "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/ST7735_t3/src",
                     "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/SdFat/src",
                     "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/SerialFlash",
-<<<<<<< Updated upstream
-=======
-                    "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/Servo",
->>>>>>> Stashed changes
                     "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/ShiftPWM",
                     "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/Snooze/src",
                     "C:/Users/samue/.platformio/packages/framework-arduinoteensy/libraries/SoftPWM",
