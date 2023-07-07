@@ -73,6 +73,8 @@ void readCurrents(){
   int reading1 = analogRead(CS_OUT1_Pin);
   int reading2 = analogRead(CS_OUT2_Pin);
 
+  currents[0] = (float) reading1;
+  currents[1] = (float) reading2;
   //TODO: equations for currents and adding to array
 }
 

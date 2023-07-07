@@ -6,6 +6,10 @@
 #include "brushless_arm.h"
 #include "power.h"
 
+#define CONTROL_LOOP_PERIOD_US 10000
+
+unsigned long lastTime, microsLeft;
+
 void setup() {
   #ifdef SCIENCE
   science_setup();
@@ -25,9 +29,14 @@ void setup() {
   #ifdef DRIVE
   drive_setup();
   #endif
+  lastTime = micros();
 }
 
 void loop() {
+  microsLeft = micros() - lastTime;
+  delayMicroseconds(microsLeft);
+  while(micros() < lastTime + CONTROL_LOOP_PERIOD_US);
+  lastTime += CONTROL_LOOP_PERIOD_US;
   #ifdef SCIENCE
   science_loop();
   #endif
