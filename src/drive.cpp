@@ -11,25 +11,61 @@ WheelMotor RBMotor(RB_PWM_PIN, RB_HALL_A_PIN, RB_HALL_B_PIN, RB_HALL_C_PIN);
 WheelMotor RFMotor(RF_PWM_PIN, RF_HALL_A_PIN, RF_HALL_B_PIN, RF_HALL_C_PIN);
 
 TeensyTimer ITimer(TEENSY_TIMER_1);
+Servo motor; 
 
 void drive_setup() {
 
+  SerialUSB.begin(115200);
   LBMotor.resetMotor(); 
-  LFMotor.resetMotor();
-  RBMotor.resetMotor(); 
-  RFMotor.resetMotor();
+  LBMotor.real_speed = 0;
+  // LFMotor.resetMotor();
+  // RBMotor.resetMotor(); 
+  // RFMotor.resetMotor();
 
-  ITimer.attachInterruptInterval(1000000 / SAMPLING_FREQUENCY, takeReadings);
-  attachAllInterrupts();
+  // ITimer.attachInterruptInterval(1000000 / SAMPLING_FREQUENCY, takeReadings);
+  // attachAllInterrupts();
+  //pinMode(0, OUTPUT);
+  //motor.attach(0, 1100, 1900);
+
 }
 
+int speed_cmd = 0;
 void drive_loop() {
-  measureSpeeds();
+  // SerialUSB.println("Looping");
+  // measureSpeeds();
 
-  updateControllers();
+  // updateControllers();
 
-  writeSpeeds();
+  // writeSpeeds();
+  // for(int i = 1900; i >= 1100; i--){
+  //   LBMotor.motor_us = i;
+  //   SerialUSB.println(i);
+  //   LBMotor.writeSpeed();
+  //   delay(5);
+  // }
 
+  // for(int i = 1100; i <= 1900; i++){
+  //   LBMotor.motor_us = i;
+  //   SerialUSB.println(i);
+  //   LBMotor.writeSpeed();
+  //   delay(5);
+  // }
+  if(SerialUSB.available()){
+    speed_cmd = SerialUSB.parseInt();
+    SerialUSB.println(speed_cmd);
+  }
+  LBMotor.setTargetSpeed(speed_cmd);
+  int result = LBMotor.update();
+  SerialUSB.print("Result: ");
+  SerialUSB.println(result);
+  SerialUSB.print("Motor_us: ");
+  SerialUSB.println(LBMotor.motor_us);
+  LBMotor.real_speed = result;
+  //LBMotor.real_speed = (int) (1500 + 4*speed_cmd);
+  //LBMotor.motor_us = (int) (1500 + 4*speed_cmd);
+  LBMotor.writeSpeed();
+  delay(5);
+    
   //Send feedback message
 }
 
