@@ -10,8 +10,9 @@ WheelMotor LFMotor(LF_PWM_PIN, LF_HALL_A_PIN, LF_HALL_B_PIN, LF_HALL_C_PIN);
 WheelMotor RBMotor(RB_PWM_PIN, RB_HALL_A_PIN, RB_HALL_B_PIN, RB_HALL_C_PIN);
 WheelMotor RFMotor(RF_PWM_PIN, RF_HALL_A_PIN, RF_HALL_B_PIN, RF_HALL_C_PIN);
 
-TeensyTimer ITimer(TEENSY_TIMER_1);
-Servo motor; 
+IntervalTimer readingTimer;
+// TeensyTimer ITimer(TEENSY_TIMER_1);
+// Servo motor; 
 
 void drive_setup() {
 
@@ -23,16 +24,14 @@ void drive_setup() {
   // RFMotor.resetMotor();
 
   // ITimer.attachInterruptInterval(1000000 / SAMPLING_FREQUENCY, takeReadings);
-  // attachAllInterrupts();
-  //pinMode(0, OUTPUT);
-  //motor.attach(0, 1100, 1900);
-
+  readingTimer.begin(takeReadings, 1000000 / SAMPLING_FREQUENCY);
+  attachAllInterrupts();
 }
 
 int speed_cmd = 0;
 void drive_loop() {
   // SerialUSB.println("Looping");
-  // measureSpeeds();
+  measureSpeeds();
 
   // updateControllers();
 
@@ -55,32 +54,32 @@ void drive_loop() {
     SerialUSB.println(speed_cmd);
   }
   LBMotor.setTargetSpeed(speed_cmd);
-  int result = LBMotor.update();
-  SerialUSB.print("Result: ");
-  SerialUSB.println(result);
+  LBMotor.update();
+  SerialUSB.print("Speed: ");
+  SerialUSB.println(LBMotor.real_speed);
   SerialUSB.print("Motor_us: ");
   SerialUSB.println(LBMotor.motor_us);
-  LBMotor.real_speed = result;
+  // LBMotor.real_speed = result;
   //LBMotor.real_speed = (int) (1500 + 4*speed_cmd);
   //LBMotor.motor_us = (int) (1500 + 4*speed_cmd);
   LBMotor.writeSpeed();
-  delay(5);
-    
+  delay(10);
+  
   //Send feedback message
 }
 
 void measureSpeeds(){
-  LBMotor.measureSpeed(ITimer);
-  LFMotor.measureSpeed(ITimer);
-  RBMotor.measureSpeed(ITimer);
-  RFMotor.measureSpeed(ITimer);
+  LBMotor.measureSpeed();
+  // LFMotor.measureSpeed(ITimer);
+  // RBMotor.measureSpeed(ITimer);
+  // RFMotor.measureSpeed(ITimer);
 }
 
 void takeReadings(){
   LFMotor.takeReading();
-	LBMotor.takeReading();
-	RFMotor.takeReading();
-	RBMotor.takeReading();
+	// LBMotor.takeReading();
+	// RFMotor.takeReading();
+	// RBMotor.takeReading();
 }
 
 void writeSpeeds(){

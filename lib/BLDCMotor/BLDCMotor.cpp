@@ -49,8 +49,8 @@ WheelMotor::WheelMotor(uint8_t Pwmpin, uint8_t hallPinA, uint8_t hallPinB, uint8
 
 /// @brief Function to calculate the speed of the motor using a fast fourier transform.
 /// @return Double of measured speed.
-void WheelMotor::measureSpeed(TeensyTimer timer){
-    if(data_is_valid) max_freq = fourierTransform(input_queue.get_container(), &fft, timer);
+void WheelMotor::measureSpeed(){
+    if(data_is_valid) max_freq = fourierTransform(input_queue.get_container(), &fft);
     real_speed = mapFloat(max_freq, 0.0f, HIGHEST_FREQUENCY, 0.0f, 100.0f);
     
     directionCounter = (real_speed == 0.0f) ? 0 : directionCounter;
@@ -97,10 +97,10 @@ void WheelMotor::writeSpeed(){
     motor.writeMicroseconds(value);
 }
 
-float32_t fourierTransform(float* input_queue, arm_rfft_fast_instance_f32 * fft, TeensyTimer timer){
-    timer.stopTimer();
+float32_t fourierTransform(float* input_queue, arm_rfft_fast_instance_f32 * fft){
+    // (*timer).end();
     std::copy(input_queue, input_queue + SAMPLE_COUNT, fft_buffer_vector);
-    timer.resumeTimer();
+    // (*timer).begin();
 
     arm_rfft_fast_f32(fft, fft_buffer_vector, mag, 0);
 
