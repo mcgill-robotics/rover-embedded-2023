@@ -10,6 +10,8 @@ WheelMotor LFMotor(LF_PWM_PIN, LF_HALL_A_PIN, LF_HALL_B_PIN, LF_HALL_C_PIN);
 WheelMotor RBMotor(RB_PWM_PIN, RB_HALL_A_PIN, RB_HALL_B_PIN, RB_HALL_C_PIN);
 WheelMotor RFMotor(RF_PWM_PIN, RF_HALL_A_PIN, RF_HALL_B_PIN, RF_HALL_C_PIN);
 
+volatile int counterInt = 0;
+
 IntervalTimer readingTimer;
 // TeensyTimer ITimer(TEENSY_TIMER_1);
 // Servo motor; 
@@ -24,31 +26,18 @@ void drive_setup() {
   // RFMotor.resetMotor();
 
   // ITimer.attachInterruptInterval(1000000 / SAMPLING_FREQUENCY, takeReadings);
-  readingTimer.begin(takeReadings, 1000000 / SAMPLING_FREQUENCY);
+  // readingTimer.begin(takeReadings, 1000000 / SAMPLING_FREQUENCY);
   attachAllInterrupts();
 }
 
 int speed_cmd = 0;
 void drive_loop() {
   // SerialUSB.println("Looping");
-  measureSpeeds();
+  // measureSpeeds();
 
   // updateControllers();
 
   // writeSpeeds();
-  // for(int i = 1900; i >= 1100; i--){
-  //   LBMotor.motor_us = i;
-  //   SerialUSB.println(i);
-  //   LBMotor.writeSpeed();
-  //   delay(5);
-  // }
-
-  // for(int i = 1100; i <= 1900; i++){
-  //   LBMotor.motor_us = i;
-  //   SerialUSB.println(i);
-  //   LBMotor.writeSpeed();
-  //   delay(5);
-  // }
   if(SerialUSB.available()){
     speed_cmd = SerialUSB.parseInt();
     SerialUSB.println(speed_cmd);
@@ -56,7 +45,7 @@ void drive_loop() {
   LBMotor.setTargetSpeed(speed_cmd);
   LBMotor.update();
   SerialUSB.print("Speed: ");
-  SerialUSB.println(LBMotor.real_speed);
+  SerialUSB.println(counterInt);
   SerialUSB.print("Motor_us: ");
   SerialUSB.println(LBMotor.motor_us);
   // LBMotor.real_speed = result;
@@ -97,21 +86,21 @@ void updateControllers(){
 }
 
 void attachAllInterrupts(){
-  attachInterrupt(LB_HALL_A_PIN, lb_hall_a_int, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(LB_HALL_A_PIN), lb_hall_a_int, CHANGE);
   attachInterrupt(LB_HALL_B_PIN, lb_hall_b_int, CHANGE);
   attachInterrupt(LB_HALL_C_PIN, lb_hall_c_int, CHANGE);
 
-  attachInterrupt(LF_HALL_A_PIN, lf_hall_a_int, CHANGE);
-  attachInterrupt(LF_HALL_B_PIN, lf_hall_b_int, CHANGE);
-  attachInterrupt(LF_HALL_C_PIN, lf_hall_c_int, CHANGE);
+  // attachInterrupt(LF_HALL_A_PIN, lf_hall_a_int, CHANGE);
+  // attachInterrupt(LF_HALL_B_PIN, lf_hall_b_int, CHANGE);
+  // attachInterrupt(LF_HALL_C_PIN, lf_hall_c_int, CHANGE);
 
-  attachInterrupt(RB_HALL_A_PIN, rb_hall_a_int, CHANGE);
-  attachInterrupt(RB_HALL_B_PIN, rb_hall_b_int, CHANGE);
-  attachInterrupt(RB_HALL_C_PIN, rb_hall_c_int, CHANGE);
+  // attachInterrupt(RB_HALL_A_PIN, rb_hall_a_int, CHANGE);
+  // attachInterrupt(RB_HALL_B_PIN, rb_hall_b_int, CHANGE);
+  // attachInterrupt(RB_HALL_C_PIN, rb_hall_c_int, CHANGE);
 
-  attachInterrupt(RF_HALL_A_PIN, rf_hall_a_int, CHANGE);
-  attachInterrupt(RF_HALL_B_PIN, rf_hall_b_int, CHANGE);
-  attachInterrupt(RF_HALL_C_PIN, rf_hall_c_int, CHANGE);
+  // attachInterrupt(RF_HALL_A_PIN, rf_hall_a_int, CHANGE);
+  // attachInterrupt(RF_HALL_B_PIN, rf_hall_b_int, CHANGE);
+  // attachInterrupt(RF_HALL_C_PIN, rf_hall_c_int, CHANGE);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -120,6 +109,7 @@ void attachAllInterrupts(){
 
 void lb_hall_a_int(){
   LBMotor.readingA = digitalRead(LB_HALL_A_PIN);
+  counterInt++;
 
   if(LBMotor.readingA == 1){
     LBMotor.directionCounter += (LBMotor.currentAngle >= 180) ? BACKWARDS : FORWARDS;
@@ -134,6 +124,7 @@ void lb_hall_a_int(){
 
 void lb_hall_b_int(){
   LBMotor.readingB = digitalRead(LB_HALL_B_PIN);
+  counterInt++;
 
   if(LBMotor.readingB == 1){
     LBMotor.directionCounter += (LBMotor.currentAngle < 120 || LBMotor.currentAngle == 300) ? BACKWARDS : FORWARDS;
@@ -148,6 +139,7 @@ void lb_hall_b_int(){
 }
 
 void lb_hall_c_int(){
+  counterInt++;
   LBMotor.readingC = digitalRead(LB_HALL_C_PIN);
 
   if(LBMotor.readingC == 1){

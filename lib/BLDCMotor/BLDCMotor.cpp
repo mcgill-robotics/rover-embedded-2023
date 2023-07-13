@@ -56,7 +56,7 @@ void WheelMotor::measureSpeed(){
     directionCounter = (real_speed == 0.0f) ? 0 : directionCounter;
     direction = (directionCounter >= 0) ? FORWARDS : BACKWARDS;
     real_speed *= direction;
-
+    
     fft_output_queue.push_back(real_speed);
     if(fft_output_queue.is_full()){fft_output_queue.pop_front();}
 
