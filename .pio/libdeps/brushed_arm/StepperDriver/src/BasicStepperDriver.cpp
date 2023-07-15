@@ -115,6 +115,7 @@ void BasicStepperDriver::setSpeedProfile(struct Profile profile){
  * positive to move forward, negative to reverse
  */
 void BasicStepperDriver::move(long steps){
+    SerialUSB.println("move");
     startMove(steps);
     while (nextAction());
 }
