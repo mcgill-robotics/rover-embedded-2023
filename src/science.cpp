@@ -20,13 +20,18 @@
 #define M1 9
 #define M0 10
 
-#define STEPPER_FREQ 1000
+#define STEPPER_FREQ 1000.0
+#define GEAR_RATIO 3
+#define TIME_ANGLE_CNST (STEPPER_FREQ/8)*1.8/1000000/3
 
 // DRV8834 stepper(MOTOR_STEPS, DIR, STEP, M0, M1);
+
+//Create an IntervalTimer object (only a max of 4 can be active simultaneously)
 IntervalTimer stepperTimer;
 
 void stepperISR(){
-  
+  analogWrite(STEP, 0);
+  stepperTimer.end();
 }
 
 void writeToStepperMotor(int steps, int direction) {
@@ -59,14 +64,40 @@ void science_setup () {
 
 }
 
+float newAngle = 0;
+float currentAngle = 0;
+float angleIncrement = 0;
+int angleIncrementDir = 1;
+unsigned long setpointTime = micros();
+
 void science_loop () {
   //writeToStepperMotor(1800,1);
   // stepper.setMicrostep(1);
+  if(Serial.available()){
+    newAngle = Serial.parseFloat();
+    Serial.print("New Setpoint: ");
+    Serial.println(newAngle);
+    currentAngle -= (angleIncrement - (micros() - setpointTime) * TIME_ANGLE_CNST) * angleIncrementDir; 
+    setpointTime = micros();
+    stepperTimer.end();
+  }
 
-  analogWrite(STEP, 2048);
-  delay(900);
-  analogWrite(STEP, 0);
-  delay(400);
+  if (newAngle != currentAngle){
+    analogWrite(STEP, 2048);
+    angleIncrement = abs(newAngle - currentAngle);
+    Serial.println(angleIncrement);
+    angleIncrementDir = (newAngle > currentAngle) ? 1 : -1;
+    digitalWrite(DIR, (angleIncrementDir > 0) ? 1 : 0);
+    stepperTimer.begin(stepperISR, angleIncrement * (1/TIME_ANGLE_CNST));
+    currentAngle = newAngle;
+  }
+  
+
+
+  // analogWrite(STEP, 2048);
+  // delay(900);
+  // analogWrite(STEP, 0);
+  // delay(400);
 
   
 
