@@ -50,21 +50,31 @@ WheelMotor::WheelMotor(uint8_t Pwmpin, uint8_t hallPinA, uint8_t hallPinB, uint8
 /// @brief Function to calculate the speed of the motor using a fast fourier transform.
 /// @return Double of measured speed.
 void WheelMotor::measureSpeed(){
-    if(data_is_valid) max_freq = fourierTransform(input_queue.get_container(), &fft);
+    // SerialUSB.println("HELLO");
+    // if((*input_queue).get_size() >= 204){
+    //     max_freq = fourierTransform((*input_queue).get_container(), &fft);
+    //     SerialUSB.println(((*input_queue).get_size()));
+    // }else{
+    //     // SerialUSB.print("Measure: ");
+    //     // SerialUSB.println((int) input_queue);
+    // }
+    max_freq = fourierTransform(fft_output_queue, &fft);
     real_speed = mapFloat(max_freq, 0.0f, HIGHEST_FREQUENCY, 0.0f, 100.0f);
     
     directionCounter = (real_speed == 0.0f) ? 0 : directionCounter;
     direction = (directionCounter >= 0) ? FORWARDS : BACKWARDS;
     real_speed *= direction;
     
-    fft_output_queue.push_back(real_speed);
-    if(fft_output_queue.is_full()){fft_output_queue.pop_front();}
+    fft_output_queue[fft_output_queue_iter++] = real_speed;
+    if(fft_output_queue_iter == KERNSIZE+1) fft_output_queue_iter = 0;
+    // fft_output_queue.push_back(real_speed);
+    // if(fft_output_queue.is_full()){fft_output_queue.pop_front();}
 
     float32_t accumulator = 0;
-    float32_t* container = fft_output_queue.get_container();
-    for(int i=0; i<fft_output_queue.get_size(); i++)
+    // float32_t* container = fft_output_queue.get_container();
+    for(int i=0; i<KERNSIZE+1; i++)
     {
-        accumulator += (container[i] * fir_kernel[i]); 
+        accumulator += (fft_output_queue[i] * fir_kernel[i]); 
     }
 
     real_speed = accumulator;
@@ -97,9 +107,16 @@ void WheelMotor::writeSpeed(){
     motor.writeMicroseconds(value);
 }
 
-float32_t fourierTransform(float* input_queue, arm_rfft_fast_instance_f32 * fft){
+float32_t fourierTransform(float32_t input_queue[], arm_rfft_fast_instance_f32 * fft){
     // (*timer).end();
-    std::copy(input_queue, input_queue + SAMPLE_COUNT, fft_buffer_vector);
+    // std::copy(input_queue, input_queue + SAMPLE_COUNT, fft_buffer_vector);
+
+    // for(int i = 0; i < 100; i++){
+    //     SerialUSB.print(input_queue[i]);
+    //     SerialUSB.print(" ");
+    // }
+    // SerialUSB.println();
+
     // (*timer).begin();
 
     arm_rfft_fast_f32(fft, fft_buffer_vector, mag, 0);
@@ -119,11 +136,31 @@ float mapFloat(int x, float in_min, float in_max, float out_min, float out_max)
 
 void WheelMotor::takeReading(){
 
-    if(input_queue.is_full()){
-        input_queue.pop_front();
-        data_is_valid = true;
-    }
-    input_queue.push_back((float32_t) readingA);
+    // SerialUSB.println(input_queue.get_size());
+    // SerialUSB.print("Reading: ");
+    // SerialUSB.println((int) &input_queue);
+    // float sum = 0;
+    // for(int i = 0; i < 200; i++){
+    //     sum += input_queue->get_value(i);
+    // }
+    // SerialUSB.println(sum);
+
+    // if((*input_queue).get_size() >= 2048){
+    //     (*input_queue).pop_front();
+    //     data_is_valid = true;
+    //     // SerialUSB.println("Data is valid");
+    // }else{
+    //     // SerialUSB.println(input_queue.get_size());
+    // }
+
+    input_queue[input_queue_iter++] = readingA;
+    if(input_queue_iter == SAMPLE_COUNT) input_queue_iter = 0;
+
+    // for(int i = 0; i < 100; i++){
+    //     SerialUSB.print(input_queue[i]);
+    //     SerialUSB.print(" ");
+    // }
+    // SerialUSB.println();
 }
 
 void WheelMotor::resetMotor(){

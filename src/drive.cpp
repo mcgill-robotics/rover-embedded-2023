@@ -26,14 +26,14 @@ void drive_setup() {
   // RFMotor.resetMotor();
 
   // ITimer.attachInterruptInterval(1000000 / SAMPLING_FREQUENCY, takeReadings);
-  // readingTimer.begin(takeReadings, 1000000 / SAMPLING_FREQUENCY);
+  readingTimer.begin(takeReadings, 1000000 / SAMPLING_FREQUENCY);
   attachAllInterrupts();
 }
 
 int speed_cmd = 0;
 void drive_loop() {
   // SerialUSB.println("Looping");
-  // measureSpeeds();
+  measureSpeeds();
 
   // updateControllers();
 
@@ -45,7 +45,7 @@ void drive_loop() {
   LBMotor.setTargetSpeed(speed_cmd);
   LBMotor.update();
   SerialUSB.print("Speed: ");
-  SerialUSB.println(counterInt);
+  SerialUSB.println(LBMotor.real_speed);
   SerialUSB.print("Motor_us: ");
   SerialUSB.println(LBMotor.motor_us);
   // LBMotor.real_speed = result;
@@ -86,7 +86,7 @@ void updateControllers(){
 }
 
 void attachAllInterrupts(){
-  attachInterrupt(digitalPinToInterrupt(LB_HALL_A_PIN), lb_hall_a_int, CHANGE);
+  attachInterrupt(LB_HALL_A_PIN, lb_hall_a_int, CHANGE);
   attachInterrupt(LB_HALL_B_PIN, lb_hall_b_int, CHANGE);
   attachInterrupt(LB_HALL_C_PIN, lb_hall_c_int, CHANGE);
 

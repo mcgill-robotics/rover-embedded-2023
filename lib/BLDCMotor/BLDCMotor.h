@@ -32,6 +32,7 @@ public:
     volatile int currentAngle = 0;
     volatile int readingA, readingB, readingC = 0;
     volatile int directionCounter = 0;
+    // Deque<float32_t, SAMPLE_COUNT> input_queue;
     volatile float32_t max_freq = 0;
 
     void measureSpeed();
@@ -51,12 +52,16 @@ private:
     arm_rfft_fast_instance_f32 fft;
     arm_pid_instance_f32 pid;
     volatile bool data_is_valid = false;
-    Deque<float32_t, SAMPLE_COUNT> input_queue;
-    Deque<float32_t, KERNSIZE+1> fft_output_queue;
+    // Deque<float32_t, KERNSIZE+1> fft_output_queue;
+
+    float32_t input_queue[SAMPLE_COUNT] = {0.0};
+    int input_queue_iter = 0;
+    float32_t fft_output_queue[KERNSIZE+1] = {0.0};
+    int fft_output_queue_iter = 0;
 }; 
 
 float mapFloat(int x, float in_min, float in_max, float out_min, float out_max);
 
-float32_t fourierTransform(float* input_queue, arm_rfft_fast_instance_f32 * fft);
+float32_t fourierTransform(float32_t input_queue[], arm_rfft_fast_instance_f32 * fft);
 
 #endif

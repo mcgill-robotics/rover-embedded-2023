@@ -84,4 +84,8 @@ public:
     T* get_container(){
         return data;
     }
+
+    float get_value(int i){
+        return (float) data[i];
+    }
 };
