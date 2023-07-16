@@ -44,10 +44,10 @@ void drive_loop() {
   }
   LBMotor.setTargetSpeed(speed_cmd);
   LBMotor.update();
-  SerialUSB.print("Speed: ");
-  SerialUSB.println(LBMotor.real_speed);
-  SerialUSB.print("Motor_us: ");
-  SerialUSB.println(LBMotor.motor_us);
+  // SerialUSB.print("Speed: ");
+  // SerialUSB.println(LBMotor.real_speed);
+  // SerialUSB.print("Motor_us: ");
+  // SerialUSB.println(LBMotor.motor_us);
   // LBMotor.real_speed = result;
   //LBMotor.real_speed = (int) (1500 + 4*speed_cmd);
   //LBMotor.motor_us = (int) (1500 + 4*speed_cmd);

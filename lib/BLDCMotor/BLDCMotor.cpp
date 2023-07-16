@@ -59,6 +59,7 @@ void WheelMotor::measureSpeed(){
     //     // SerialUSB.println((int) input_queue);
     // }
     max_freq = fourierTransform(fft_output_queue, &fft);
+    SerialUSB.println(max_freq);
     real_speed = mapFloat(max_freq, 0.0f, HIGHEST_FREQUENCY, 0.0f, 100.0f);
     
     directionCounter = (real_speed == 0.0f) ? 0 : directionCounter;
@@ -109,7 +110,7 @@ void WheelMotor::writeSpeed(){
 
 float32_t fourierTransform(float32_t input_queue[], arm_rfft_fast_instance_f32 * fft){
     // (*timer).end();
-    // std::copy(input_queue, input_queue + SAMPLE_COUNT, fft_buffer_vector);
+    std::copy(input_queue, input_queue + SAMPLE_COUNT, fft_buffer_vector);
 
     // for(int i = 0; i < 100; i++){
     //     SerialUSB.print(input_queue[i]);
