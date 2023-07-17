@@ -17,6 +17,8 @@
 #define CS_OUT1_Pin 17
 #define CS_OUT2_Pin 16
 
+extern float currentsKS[2];
+
 void killswitch_setup();
 void killswitch_loop();
 

@@ -1,7 +1,9 @@
 #ifdef SCIENCE //LEAVE THIS AT THE TOP OF THIS FILE
 
-#include <Arduino.h>
 #include "science.h"
+
+float moistures[4];
+float scienceTargets[3]; //Carousel, Auger, Leadscrew
 
 void science_setup() {
   // put your setup code here, to run once:

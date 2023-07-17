@@ -3,6 +3,9 @@
 #include <Arduino.h>
 #include "drive.h"
 
+float targetSpeeds[4];
+float realSpeeds[4];
+
 void drive_setup() {
   // put your setup code here, to run once:
 }

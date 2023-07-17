@@ -1,7 +1,5 @@
 #include <Arduino.h>
-#include "ros.h"
 #include "PWMServo.h"
-#include "std_msgs/Float32MultiArray.h"
 
 #define PWM_Servo_1_Pin 7
 #define PWM_Servo_2_Pin 8
@@ -18,11 +16,13 @@
 #define Sci5_Curr_Pin 20
 #define Sci12_Curr_Pin 21
 
+extern float currentsPower[8];
+extern float powerAngles[2];
+extern int powerRelays[4];
+
 void power_setup();
 void power_loop();
 
-
-void msgCBPower(const std_msgs::Float32MultiArray& input_msg);
 void readAllCurrents();
 void moveServos();
 void writeRelays();

@@ -5,10 +5,9 @@
 #include "ros.h"
 #include "std_msgs/Float32MultiArray.h"
 
-float currents[2];
-std_msgs::Float32MultiArray currentsMsg;
-ros::NodeHandle nh;
-ros::Publisher pub("currentKS", &currentsMsg);
+#define CURRENT_SENSOR_CONSTANT 0.00201416015625 //3.3/(0.002 * 200.0 * 4096.0), PIN_VOLTAGE/(RESISTOR_VALUE * GAIN_CURRENT_SENSOR * ANALOG_RESOLUTION)
+
+float currentsKS[2];
 
 void killswitch_setup() {
   // Initialize pins
@@ -38,19 +37,12 @@ void killswitch_setup() {
   digitalWrite(B1b_RBI_Pin, HIGH);
 
   analogReadResolution(12);
-
-  currentsMsg.data = currents;
-  nh.initNode();
-  nh.advertise(pub);
 }
 
 void killswitch_loop() {
   readCurrents();
 
-  writeDisplays(currents[0] + currents[1]);
-
-  pub.publish(&currentsMsg);
-  nh.spinOnce();
+  writeDisplays(currentsKS[0] + currentsKS[1]);
 }
 
 void writeDisplays(float current){
@@ -73,9 +65,8 @@ void readCurrents(){
   int reading1 = analogRead(CS_OUT1_Pin);
   int reading2 = analogRead(CS_OUT2_Pin);
 
-  currents[0] = (float) reading1;
-  currents[1] = (float) reading2;
-  //TODO: equations for currents and adding to array
+  currentsKS[0] = ((float) reading1) * CURRENT_SENSOR_CONSTANT;
+  currentsKS[1] = ((float) reading2) * CURRENT_SENSOR_CONSTANT;
 }
 
 // #endif //LEAVE THIS AT THE BOTTOM OF THIS FILE

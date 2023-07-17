@@ -3,6 +3,9 @@
 #include <Arduino.h>
 #include "brushless_arm.h"
 
+float arm24TargetAngles[3];
+float arm24ActualAngles[3];
+
 void brushless_arm_setup() {
   // put your setup code here, to run once:
 }
