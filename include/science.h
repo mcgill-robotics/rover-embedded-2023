@@ -15,13 +15,18 @@
 #define LIM_1 21
 #define LIM_2 22
 
-#define MOTOR_STEPS 200
-#define RPM 75
+#define STEPPER_SPEED 30 // deg/s
 
 #define STEPPER_FREQ 1000.0
+#define DEGPERSTEP 1.8
 #define GEAR_RATIO 3
 #define TIME_ANGLE_CNST (STEPPER_FREQ/8)*1.8/1000000/3
 
+extern float scienceTargets[2];
+
 void science_setup();
 void science_loop();
+
+void lim1ISR();
+void lim2ISR();
     

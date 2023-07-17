@@ -6,8 +6,7 @@
 #include "AccelStepper.h"
 #include "CytronMotorDriver.h"
 
-#define MOTOR_STEPS 200
-#define RPM 75
+float scienceTargets[2];
 
 // //TEST BREADBOARD
 // #define DIR 8
@@ -28,6 +27,7 @@
 // DRV8834 stepper(MOTOR_STEPS, DIR, STEP, M0, M1);
 
 //Create an IntervalTimer object (only a max of 4 can be active simultaneously)
+AccelStepper stepper(AccelStepper::DRIVER, STEP, DIR);
 IntervalTimer stepperTimer;
 
 CytronMD MOT1(PWM_DIR, MOT1_PWM, MOT1_DIR);
