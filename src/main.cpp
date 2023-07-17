@@ -5,6 +5,7 @@
 #include "brushed_arm.h"
 #include "brushless_arm.h"
 #include "power.h"
+#include "gps.h"
 
 void setup() {
   #ifdef SCIENCE
@@ -12,6 +13,9 @@ void setup() {
   #endif
   #ifdef POWER
   power_setup();
+  #endif
+  #ifdef GPS
+  gps_setup();
   #endif
   #ifdef KILLSWITCH
   killswitch_setup();
@@ -33,6 +37,9 @@ void loop() {
   #endif
   #ifdef POWER
   power_loop();
+  #endif
+  #ifdef GPS
+  gps_loop();
   #endif
   #ifdef KILLSWITCH
   killswitch_loop();
