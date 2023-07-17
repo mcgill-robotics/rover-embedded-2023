@@ -64,8 +64,11 @@ void moveServos(){
 void writeRelays(){
   digitalWrite(Drive_Pin, powerRelays[0]);
   digitalWrite(Science_Pin, powerRelays[1]);
-  digitalWrite(Arm_12V_Pin, powerRelays[2]);
-  digitalWrite(Arm_24V_Pin, powerRelays[3]);
+  if(powerRelays[2] == 1.0 || powerRelays[3] == 1.0){
+    digitalWrite(Arm_12V_Pin, 1.0);
+  }else{
+    digitalWrite(Arm_12V_Pin, 0.0);
+  }
 }
 
 #endif //LEAVE THIS AT THE BOTTOM OF THIS FILE

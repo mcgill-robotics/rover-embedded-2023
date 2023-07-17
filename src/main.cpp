@@ -101,7 +101,7 @@ void setup() {
   #endif
   #ifdef DRIVE
   drive_setup();
-  driveFBMsg.data = arm24TargetAngles;
+  driveFBMsg.data = targetSpeeds;
   driveFBMsg.data_length = 3;
   driveCmdMsg.data_length = 3;
 
