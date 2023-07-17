@@ -1,4 +1,7 @@
 #include <Arduino.h>
 
-void upper_arm_setup();
-void upper_arm_loop();
+extern float arm12TargetAngles[3];
+extern float arm12ActualAngles[3];
+
+void brushed_arm_setup();
+void brushed_arm_loop();
