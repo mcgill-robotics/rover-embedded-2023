@@ -9,7 +9,7 @@
 #include "ros.h"
 #include "std_msgs/Float32MultiArray.h"
 
-#define CONTROL_LOOP_PERIOD_US 1000
+#define CONTROL_LOOP_PERIOD_US 5000
 
 unsigned long lastTime;
 ros::NodeHandle nh;
@@ -19,6 +19,7 @@ void powerCB(const std_msgs::Float32MultiArray& input_msg);
 void arm12CB(const std_msgs::Float32MultiArray& input_msg);
 void arm24CB(const std_msgs::Float32MultiArray& input_msg);
 void driveCB(const std_msgs::Float32MultiArray& input_msg);
+void reconnect();
 
 #ifdef SCIENCE
 std_msgs::Float32MultiArray scienceFBMsg;
@@ -113,12 +114,22 @@ void setup() {
   nh.subscribe(driveCmd);
   #endif
 
+  nh.negotiateTopics();
+
   lastTime = micros();
 }
 
 void loop() {
   while(micros() < lastTime + CONTROL_LOOP_PERIOD_US);
   lastTime += CONTROL_LOOP_PERIOD_US;
+
+  // if(!nh.connected()){
+  //   while(!nh.connected()){
+  //     nh.spinOnce();
+  //   }
+  //   reconnect();
+  // }
+
   #ifdef SCIENCE
   science_loop();
   scienceFB.publish(&scienceFBMsg);
@@ -180,4 +191,37 @@ void driveCB(const std_msgs::Float32MultiArray& input_msg){
   targetSpeeds[1] = input_msg.data[1];
   targetSpeeds[2] = input_msg.data[2];
   targetSpeeds[3] = input_msg.data[3];
+}
+
+void reconnect(){
+  nh.initNode();
+  #ifdef SCIENCE
+  nh.advertise(scienceFB);
+  nh.subscribe(scienceCmd);
+  #endif
+  #ifdef POWER_SYS
+  nh.advertise(currentPower);
+  nh.subscribe(powerCmd);
+  #endif
+  #ifdef GPS
+  nh.advertise(pubGPS);
+  #endif
+  #ifdef KILLSWITCH
+  nh.advertise(currentKS);
+  #endif
+  #ifdef BRUSHED_ARM
+  nh.advertise(arm12FB);
+  nh.subscribe(arm12Cmd);
+  #endif
+  #ifdef BRUSHLESS_ARM
+  nh.advertise(arm24FB);
+  nh.subscribe(arm24Cmd);
+  #endif
+  #ifdef DRIVE
+  nh.advertise(driveFB);
+  nh.subscribe(driveCmd);
+  #endif
+
+  nh.negotiateTopics();
+  lastTime = micros() + CONTROL_LOOP_PERIOD_US;
 }
