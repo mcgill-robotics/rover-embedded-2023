@@ -19,7 +19,7 @@
 #define DEGPERSTEP 1.8
 #define GEAR_RATIO 3
 
-extern float scienceTargets[2];
+extern float scienceTargets[3];
 
 void science_setup();
 void science_loop();
