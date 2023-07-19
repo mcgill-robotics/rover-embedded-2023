@@ -15,11 +15,11 @@
 #define LIM_1 21
 #define LIM_2 22
 
-#define STEPPER_FREQ 1000.0
+#define STEPPER_FREQ 4000.0
 #define DEGPERSTEP 1.8
-#define GEAR_RATIO 3
+#define GEAR_RATIO 1
 
-extern float scienceTargets[3];
+// extern float scienceTargets[3];
 
 void science_setup();
 void science_loop();
