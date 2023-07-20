@@ -33,6 +33,10 @@ std_msgs::Float32MultiArray powerCmdMsg;
 ros::Publisher currentPower("currentPower", &currentPowerMsg);
 ros::Subscriber<std_msgs::Float32MultiArray> powerCmd("powerCmd", powerCB);
 #endif
+#ifdef GPS
+std_msgs::Float32MultiArray gpsMsg;
+ros::Publisher pubGPS("roverGPSData", &gpsMsg);
+#endif
 #ifdef KILLSWITCH
 std_msgs::Float32MultiArray currentKSMsg;
 ros::Publisher currentKS("currentKS", &currentKSMsg);
@@ -78,6 +82,10 @@ void setup() {
   #endif
   #ifdef GPS
   gps_setup();
+  gpsMsg.data = coords;
+  gpsMsg.data_length = 2;
+
+  nh.advertise(pubGPS);
   #endif
   #ifdef KILLSWITCH
   killswitch_setup();
@@ -140,6 +148,7 @@ void loop() {
   #endif
   #ifdef GPS
   gps_loop();
+  pubGPS.publish(&gpsMsg);
   #endif
   #ifdef KILLSWITCH
   killswitch_loop();
