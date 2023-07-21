@@ -19,7 +19,6 @@ void powerCB(const std_msgs::Float32MultiArray& input_msg);
 void arm12CB(const std_msgs::Float32MultiArray& input_msg);
 void arm24CB(const std_msgs::Float32MultiArray& input_msg);
 void driveCB(const std_msgs::Float32MultiArray& input_msg);
-void reconnect();
 
 #ifdef SCIENCE
 std_msgs::Float32MultiArray scienceFBMsg;
@@ -35,7 +34,9 @@ ros::Subscriber<std_msgs::Float32MultiArray> powerCmd("powerCmd", powerCB);
 #endif
 #ifdef GPS
 std_msgs::Float32MultiArray gpsMsg;
+std_msgs::Float32MultiArray imuMsg;
 ros::Publisher pubGPS("roverGPSData", &gpsMsg);
+ros::Publisher pubIMU("roverIMUData", &imuMsg);
 #endif
 #ifdef KILLSWITCH
 std_msgs::Float32MultiArray currentKSMsg;
@@ -84,8 +85,11 @@ void setup() {
   gps_setup();
   gpsMsg.data = coords;
   gpsMsg.data_length = 2;
+  imuMsg.data = quaternion;
+  imuMsg.data_length = 6;
 
   nh.advertise(pubGPS);
+  nh.advertise(pubIMU);
   #endif
   #ifdef KILLSWITCH
   killswitch_setup();
@@ -131,13 +135,6 @@ void loop() {
   while(micros() < lastTime + CONTROL_LOOP_PERIOD_US);
   lastTime += CONTROL_LOOP_PERIOD_US;
 
-  // if(!nh.connected()){
-  //   while(!nh.connected()){
-  //     nh.spinOnce();
-  //   }
-  //   reconnect();
-  // }
-
   #ifdef SCIENCE
   science_loop();
   scienceFB.publish(&scienceFBMsg);
@@ -149,6 +146,7 @@ void loop() {
   #ifdef GPS
   gps_loop();
   pubGPS.publish(&gpsMsg);
+  pubIMU.publish(%imuMsg);
   #endif
   #ifdef KILLSWITCH
   killswitch_loop();
@@ -200,37 +198,4 @@ void driveCB(const std_msgs::Float32MultiArray& input_msg){
   targetSpeeds[1] = input_msg.data[1];
   targetSpeeds[2] = input_msg.data[2];
   targetSpeeds[3] = input_msg.data[3];
-}
-
-void reconnect(){
-  nh.initNode();
-  #ifdef SCIENCE
-  nh.advertise(scienceFB);
-  nh.subscribe(scienceCmd);
-  #endif
-  #ifdef POWER_SYS
-  nh.advertise(currentPower);
-  nh.subscribe(powerCmd);
-  #endif
-  #ifdef GPS
-  nh.advertise(pubGPS);
-  #endif
-  #ifdef KILLSWITCH
-  nh.advertise(currentKS);
-  #endif
-  #ifdef BRUSHED_ARM
-  nh.advertise(arm12FB);
-  nh.subscribe(arm12Cmd);
-  #endif
-  #ifdef BRUSHLESS_ARM
-  nh.advertise(arm24FB);
-  nh.subscribe(arm24Cmd);
-  #endif
-  #ifdef DRIVE
-  nh.advertise(driveFB);
-  nh.subscribe(driveCmd);
-  #endif
-
-  nh.negotiateTopics();
-  lastTime = micros() + CONTROL_LOOP_PERIOD_US;
 }
