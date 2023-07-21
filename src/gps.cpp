@@ -1,3 +1,5 @@
+#ifdef GPS
+
 #include "gps.h"
 #include "Quaternion.h"
 #include "XimuReceiver.h"
@@ -36,3 +38,5 @@ void gps_loop(){
     quaternion[5] = eulerStruct.yaw;
   }
 }
+
+#endif

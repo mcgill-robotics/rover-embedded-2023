@@ -146,7 +146,7 @@ void loop() {
   #ifdef GPS
   gps_loop();
   pubGPS.publish(&gpsMsg);
-  pubIMU.publish(%imuMsg);
+  pubIMU.publish(&imuMsg);
   #endif
   #ifdef KILLSWITCH
   killswitch_loop();
