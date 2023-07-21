@@ -34,8 +34,10 @@ ros::Subscriber<std_msgs::Float32MultiArray> powerCmd("powerCmd", powerCB);
 #endif
 #ifdef GPS
 std_msgs::Float32MultiArray gpsMsg;
-std_msgs::Float32MultiArray imuMsg;
 ros::Publisher pubGPS("roverGPSData", &gpsMsg);
+#endif
+#ifdef USE_IMU
+std_msgs::Float32MultiArray imuMsg;
 ros::Publisher pubIMU("roverIMUData", &imuMsg);
 #endif
 #ifdef KILLSWITCH
@@ -85,10 +87,13 @@ void setup() {
   gps_setup();
   gpsMsg.data = coords;
   gpsMsg.data_length = 2;
+
+  nh.advertise(pubGPS);
+  #endif
+  #ifdef USE_IMU
   imuMsg.data = quaternion;
   imuMsg.data_length = 6;
 
-  nh.advertise(pubGPS);
   nh.advertise(pubIMU);
   #endif
   #ifdef KILLSWITCH
@@ -146,6 +151,8 @@ void loop() {
   #ifdef GPS
   gps_loop();
   pubGPS.publish(&gpsMsg);
+  #endif
+  #ifdef USE_IMU
   pubIMU.publish(&imuMsg);
   #endif
   #ifdef KILLSWITCH
