@@ -3,8 +3,8 @@
 #include <Arduino.h>
 #include "brushed_arm.h"
 
-float arm12TargetAngles[3];
-float arm12ActualAngles[3];
+float armBrushedTargetAngles[3];
+float armBrushedActualAngles[3];
 
 void brushed_arm_setup() {
   // put your setup code here, to run once:
