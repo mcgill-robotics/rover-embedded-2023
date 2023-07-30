@@ -1,8 +1,14 @@
 // META SETTINGS---------------------------------------------------------------
 #define USE_TEENSY 1
 #define IRQ_DEBUG_PRIORITY 10
+
+#ifndef BRUSHED_ARM
 #define BRUSHED_ARM 0
-#define BRUSHLESS_ARM 1
+#endif
+
+#ifndef BRUSHLESS_ARM
+#define BRUSHLESS_ARM 0
+#endif
 
 // CONFIGURATION---------------------------------------------------------------
 #define TEST_ENCODER 0
@@ -99,9 +105,9 @@
 
 // MOTOR SETTINGS---------------------------------------------------------------
 #if BRUSHED_ARM == 1
-#define TEST_WRIST_ROLL_CYTRON 0
+#define TEST_WRIST_ROLL_CYTRON 1
 #define TEST_WRIST_PITCH_CYTRON 1
-#define TEST_END_EFFECTOR_CYTRON 0
+#define TEST_END_EFFECTOR_CYTRON 1
 #endif
 
 #if BRUSHLESS_ARM == 1

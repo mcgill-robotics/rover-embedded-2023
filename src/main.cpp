@@ -44,13 +44,13 @@ ros::Publisher pubIMU("roverIMUData", &imuMsg);
 std_msgs::Float32MultiArray currentKSMsg;
 ros::Publisher currentKS("currentKS", &currentKSMsg);
 #endif
-#ifdef BRUSHED_ARM
+#if BRUSHED_ARM == 1
 std_msgs::Float32MultiArray armBrushedFBMsg;
 std_msgs::Float32MultiArray armBrushedCmdMsg;
 ros::Publisher armBrushedFB("armBrushedFB", &armBrushedFBMsg);
 ros::Subscriber<std_msgs::Float32MultiArray> armBrushedCmd("armBrushedCmd", armBrushedCB);
 #endif
-#ifdef BRUSHLESS_ARM
+#if BRUSHLESS_ARM == 1
 std_msgs::Float32MultiArray armBrushlessFBMsg;
 std_msgs::Float32MultiArray armBrushlessCmdMsg;
 ros::Publisher armBrushlessFB("armBrushlessFB", &armBrushlessFBMsg);
@@ -104,7 +104,7 @@ void setup()
 
   nh.advertise(currentKS);
 #endif
-#ifdef BRUSHED_ARM
+#if BRUSHED_ARM == 1
   brushed_arm_setup();
   armBrushedFBMsg.data = armBrushedActualAngles;
   armBrushedFBMsg.data_length = 3;
@@ -113,7 +113,7 @@ void setup()
   nh.advertise(armBrushedFB);
   nh.subscribe(armBrushedCmd);
 #endif
-#ifdef BRUSHLESS_ARM
+#if BRUSHLESS_ARM == 1
   brushless_arm_setup();
   armBrushlessFBMsg.data = armBrushlessActualAngles;
   armBrushlessFBMsg.data_length = 3;
@@ -162,11 +162,11 @@ void loop()
   killswitch_loop();
   currentKS.publish(&currentKSMsg);
 #endif
-#ifdef BRUSHED_ARM
+#if BRUSHED_ARM == 1
   brushed_arm_loop();
   armBrushedFB.publish(&armBrushedFBMsg);
 #endif
-#ifdef BRUSHLESS_ARM
+#if BRUSHLESS_ARM == 1
   brushless_arm_loop();
   armBrushlessFB.publish(&armBrushlessFBMsg);
 #endif

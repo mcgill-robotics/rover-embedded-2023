@@ -147,6 +147,8 @@ double real_angle = 0;
 // Needs to be called in each loop
 void RoverArmMotor::tick()
 {
+    float setpoint_internal = (*setpoint) * gear_ratio;
+
     if (stop_tick)
     {
         this->stop(); // stop the motor
@@ -188,11 +190,11 @@ void RoverArmMotor::tick()
     double diff;
     if (wrist_waist)
     {
-        diff = min(abs(currentAngle - *setpoint), angle_full_turn - abs(currentAngle - *setpoint));
+        diff = min(abs(currentAngle - setpoint_internal), angle_full_turn - abs(currentAngle - setpoint_internal));
     }
     else
     {
-        diff = abs(currentAngle - *setpoint);
+        diff = abs(currentAngle - setpoint_internal);
     }
     if (diff < error_range)
     {
@@ -218,18 +220,18 @@ void RoverArmMotor::tick()
     // Find the shortest from the current position to the setpoint.
     if (wrist_waist)
     {
-        forwardDistance = (*setpoint > input) ? *setpoint - input : (angle_full_turn - input) + *setpoint;
-        backwardDistance = (*setpoint > input) ? (angle_full_turn - *setpoint) + input : input - *setpoint;
+        forwardDistance = (setpoint_internal > input) ? setpoint_internal - input : (angle_full_turn - input) + setpoint_internal;
+        backwardDistance = (setpoint_internal > input) ? (angle_full_turn - setpoint_internal) + input : input - setpoint_internal;
         // GO BACKWARDS CW.
         if (backwardDistance < forwardDistance - 10.0) // handle hysterisis
         {
             if (*setpoint > input)
             {
-                output = internalPIDInstance->calculate(*setpoint, input + angle_full_turn); // buff it 360 to go backwards
+                output = internalPIDInstance->calculate(setpoint_internal, input + angle_full_turn); // buff it 360 to go backwards
             }
             else
             {
-                output = internalPIDInstance->calculate(*setpoint, input); // wrapped around so bigger so no need buff 360
+                output = internalPIDInstance->calculate(setpoint_internal, input); // wrapped around so bigger so no need buff 360
             }
         }
         // GO FORWARDS CCW.
@@ -237,17 +239,17 @@ void RoverArmMotor::tick()
         {
             if (*setpoint > input)
             {
-                output = internalPIDInstance->calculate(*setpoint, input); //  wrapped around so bigger so no need nerf 360
+                output = internalPIDInstance->calculate(setpoint_internal, input); //  wrapped around so bigger so no need nerf 360
             }
             else
             {
-                output = internalPIDInstance->calculate(*setpoint, input - angle_full_turn); // nerf it 360 to go forwards
+                output = internalPIDInstance->calculate(setpoint_internal, input - angle_full_turn); // nerf it 360 to go forwards
             }
         }
     }
     else
     {
-        output = internalPIDInstance->calculate((double)(*setpoint), input); // return value stored in output
+        output = internalPIDInstance->calculate((double)(setpoint_internal), input); // return value stored in output
     }
 
     //------------------Write to motor------------------//
@@ -547,7 +549,7 @@ int RoverArmMotor::get_current_angle_sw(double *angle)
         }
     }
     // ROS feedback.
-    *current_angle_float = (float)(*angle);
+    *current_angle_float = (float)(*angle) / gear_ratio;
     return 0; // return 0 on success
 }
 
