@@ -9,7 +9,7 @@
 #include "ros.h"
 #include "std_msgs/Float32MultiArray.h"
 
-#define CONTROL_LOOP_PERIOD_US 5000
+#define CONTROL_LOOP_PERIOD_US 10000
 
 unsigned long lastTime;
 ros::NodeHandle nh;
@@ -123,9 +123,9 @@ void setup() {
   #endif
   #ifdef DRIVE
   drive_setup();
-  driveFBMsg.data = targetSpeeds;
-  driveFBMsg.data_length = 3;
-  driveCmdMsg.data_length = 3;
+  driveFBMsg.data = realSpeeds;
+  driveFBMsg.data_length = 4;
+  driveCmdMsg.data_length = 4;
 
   nh.advertise(driveFB);
   nh.subscribe(driveCmd);
