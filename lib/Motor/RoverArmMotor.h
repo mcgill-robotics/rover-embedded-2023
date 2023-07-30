@@ -22,7 +22,7 @@ public:
 #define MAX_ADC_VALUE 4095 // 3850
 #define MIN_ADC_VALUE 0    // 200
 
-    RoverArmMotor(float& setpoint, int pwm_pin, int dir_pin, int encoder_pin, int esc_type,
+    RoverArmMotor(float *sp, float *feedback_angle, int pwm_pin, int dir_pin, int encoder_pin, int esc_type,
                   double minimum_angle, double maximum_angle);
 
     // Setters for various tunable parameters of our motors
@@ -35,7 +35,7 @@ public:
     void set_zero_angle();               // unused
     void set_current_as_zero_angle_sw(); // mn297 software zero angle
     void set_current_as_zero_angle_sw(double angle);
-    void set_current_as_max_angle_sw();  // mn297 software zero angle
+    void set_current_as_max_angle_sw(); // mn297 software zero angle
     void set_current_as_angle_sw(double angle);
     void set_max_angle_sw();
 
@@ -92,6 +92,7 @@ public: // TESTING only
     int escType;
     int adcResult;
     double currentAngle, lastAngle;
+    float *current_angle_float;
     double current_angle_multi;
     int _turns;
     double _angle_raw;
@@ -99,7 +100,7 @@ public: // TESTING only
     // int multiplier;
     volatile double input;
     volatile double output;
-    volatile float& setpoint;
+    float *setpoint;
     int actuationState;
     double gear_ratio;
 

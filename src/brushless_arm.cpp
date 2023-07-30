@@ -42,17 +42,17 @@ volatile unsigned long last_trigger_time_waist_min = 0;
 
 /*---------------------ELBOW_SERVO DECLARATIONS---------------------*/
 #if TEST_ELBOW_SERVO == 1
-RoverArmMotor Elbow(armBrushlessTargetAngles[0], PWM2, -1, CS1, BLUE_ROBOTICS, ELBOW_MIN_ANGLE, ELBOW_MAX_ANGLE);
+RoverArmMotor Elbow(&armBrushlessTargetAngles[0], &armBrushlessActualAngles[0], PWM2, -1, CS1, BLUE_ROBOTICS, ELBOW_MIN_ANGLE, ELBOW_MAX_ANGLE);
 #endif
 
 /*---------------------SHOULDER_SERVO DECLARATIONS---------------------*/
 #if TEST_SHOULDER_SERVO == 1
-RoverArmMotor Shoulder(armBrushlessTargetAngles[1], PWM1, -1, CS2, BLUE_ROBOTICS, SHOULDER_MIN_ANGLE, SHOULDER_MAX_ANGLE);
+RoverArmMotor Shoulder(&armBrushlessTargetAngles[1], &armBrushlessActualAngles[1], PWM1, -1, CS2, BLUE_ROBOTICS, SHOULDER_MIN_ANGLE, SHOULDER_MAX_ANGLE);
 #endif
 
 /*---------------------WAIST_SERVO DECLARATIONS---------------------*/
 #if TEST_WAIST_SERVO == 1
-RoverArmMotor Waist(armBrushlessTargetAngles[2], PWM3, -1, CS3, BLUE_ROBOTICS, WAIST_MIN_ANGLE, WAIST_MAX_ANGLE);
+RoverArmMotor Waist(&armBrushlessTargetAngles[2], &armBrushlessActualAngles[2], PWM3, -1, CS3, BLUE_ROBOTICS, WAIST_MIN_ANGLE, WAIST_MAX_ANGLE);
 #endif
 
 void brushless_arm_setup()
@@ -140,7 +140,7 @@ void limit_elbow_max_int()
     if (digitalRead(LIMIT_ELBOW_MAX) == LOW)
     {
       limit_elbow_max_activated = 1;
-      Elbow.new_setpoint(Elbow.setpoint - 5.0f);
+      Elbow.new_setpoint(*(Elbow.setpoint) - 5.0f);
       Elbow.stop();
     }
     else
@@ -159,7 +159,7 @@ void limit_elbow_min_int()
     if (digitalRead(LIMIT_ELBOW_MIN) == LOW)
     {
       limit_elbow_min_activated = 1;
-      Elbow.new_setpoint(Elbow.setpoint + 5.0f);
+      Elbow.new_setpoint(*(Elbow.setpoint) + 5.0f);
       Elbow.stop();
     }
     else
@@ -180,7 +180,7 @@ void limit_shoulder_max_int()
     if (digitalRead(LIMIT_SHOULDER_MAX) == LOW)
     {
       limit_shoulder_max_activated = 1;
-      Shoulder.new_setpoint(Shoulder.setpoint - 5.0f);
+      Shoulder.new_setpoint(*(Shoulder.setpoint) - 5.0f);
       Shoulder.stop();
     }
     else
@@ -199,7 +199,7 @@ void limit_shoulder_min_int()
     if (digitalRead(LIMIT_SHOULDER_MIN) == LOW)
     {
       limit_shoulder_min_activated = 1;
-      Shoulder.new_setpoint(Shoulder.setpoint + 5.0f);
+      Shoulder.new_setpoint(*(Shoulder.setpoint) + 5.0f);
       Shoulder.stop();
     }
     else
@@ -220,7 +220,7 @@ void limit_waist_max_int()
     if (digitalRead(LIMIT_WAIST_MAX) == LOW)
     {
       limit_waist_max_activated = 1;
-      Waist.new_setpoint(Waist.setpoint - 5.0f);
+      Waist.new_setpoint(*(Waist.setpoint) - 5.0f);
       Waist.stop();
     }
     else
@@ -239,7 +239,7 @@ void limit_waist_min_int()
     if (digitalRead(LIMIT_WAIST_MIN) == LOW)
     {
       limit_waist_min_activated = 1;
-      Waist.new_setpoint(Waist.setpoint + 5.0f);
+      Waist.new_setpoint(*(Waist.setpoint) + 5.0f);
       Waist.stop();
     }
     else

@@ -106,7 +106,7 @@ void setup()
 #endif
 #ifdef BRUSHED_ARM
   brushed_arm_setup();
-  armBrushedFBMsg.data = armBrushedTargetAngles;
+  armBrushedFBMsg.data = armBrushedActualAngles;
   armBrushedFBMsg.data_length = 3;
   armBrushedCmdMsg.data_length = 3;
 
@@ -115,7 +115,7 @@ void setup()
 #endif
 #ifdef BRUSHLESS_ARM
   brushless_arm_setup();
-  armBrushlessFBMsg.data = armBrushlessTargetAngles;
+  armBrushlessFBMsg.data = armBrushlessActualAngles;
   armBrushlessFBMsg.data_length = 3;
   armBrushlessCmdMsg.data_length = 3;
 
@@ -124,9 +124,9 @@ void setup()
 #endif
 #ifdef DRIVE
   drive_setup();
-  driveFBMsg.data = targetSpeeds;
-  driveFBMsg.data_length = 3;
-  driveCmdMsg.data_length = 3;
+  driveFBMsg.data = realSpeeds;
+  driveFBMsg.data_length = 4;
+  driveCmdMsg.data_length = 4;
 
   nh.advertise(driveFB);
   nh.subscribe(driveCmd);

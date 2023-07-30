@@ -25,8 +25,8 @@
  * @param  limit_switch_pin: pin for the brake or limit switch
  * @retval None
  */
-RoverArmMotor::RoverArmMotor(float &setpoint, int pwm_pin, int dir_pin, int encoder_pin, int esc_type,
-                             double minimum_angle, double maximum_angle) : setpoint(setpoint)
+RoverArmMotor::RoverArmMotor(float *sp, float *feedback_angle, int pwm_pin, int dir_pin, int encoder_pin, int esc_type,
+                             double minimum_angle, double maximum_angle)
 {
     _pwm = pwm_pin;
     _dir = dir_pin;
@@ -53,6 +53,9 @@ RoverArmMotor::RoverArmMotor(float &setpoint, int pwm_pin, int dir_pin, int enco
     inverted = 1.0;
     inverted_angle = 0;
     error_range = 0.6;
+
+    setpoint = sp;
+    current_angle_float = feedback_angle;
 
     _brake_pin = -1;
     _limit_pin_max = -1;
@@ -113,7 +116,7 @@ void RoverArmMotor::begin(double regP, double regI, double regD, double aggP, do
         encoder_error = 1;
         return;
     }
-    setpoint = currentAngle;
+    *setpoint = currentAngle;
     lastAngle = currentAngle;
 
     /*------------------Set PID parameters------------------*/
@@ -185,11 +188,11 @@ void RoverArmMotor::tick()
     double diff;
     if (wrist_waist)
     {
-        diff = min(abs(currentAngle - setpoint), angle_full_turn - abs(currentAngle - setpoint));
+        diff = min(abs(currentAngle - *setpoint), angle_full_turn - abs(currentAngle - *setpoint));
     }
     else
     {
-        diff = abs(currentAngle - setpoint);
+        diff = abs(currentAngle - *setpoint);
     }
     if (diff < error_range)
     {
@@ -215,36 +218,36 @@ void RoverArmMotor::tick()
     // Find the shortest from the current position to the setpoint.
     if (wrist_waist)
     {
-        forwardDistance = (setpoint > input) ? setpoint - input : (angle_full_turn - input) + setpoint;
-        backwardDistance = (setpoint > input) ? (angle_full_turn - setpoint) + input : input - setpoint;
+        forwardDistance = (*setpoint > input) ? *setpoint - input : (angle_full_turn - input) + *setpoint;
+        backwardDistance = (*setpoint > input) ? (angle_full_turn - *setpoint) + input : input - *setpoint;
         // GO BACKWARDS CW.
         if (backwardDistance < forwardDistance - 10.0) // handle hysterisis
         {
-            if (setpoint > input)
+            if (*setpoint > input)
             {
-                output = internalPIDInstance->calculate(setpoint, input + angle_full_turn); // buff it 360 to go backwards
+                output = internalPIDInstance->calculate(*setpoint, input + angle_full_turn); // buff it 360 to go backwards
             }
             else
             {
-                output = internalPIDInstance->calculate(setpoint, input); // wrapped around so bigger so no need buff 360
+                output = internalPIDInstance->calculate(*setpoint, input); // wrapped around so bigger so no need buff 360
             }
         }
         // GO FORWARDS CCW.
         else
         {
-            if (setpoint > input)
+            if (*setpoint > input)
             {
-                output = internalPIDInstance->calculate(setpoint, input); //  wrapped around so bigger so no need nerf 360
+                output = internalPIDInstance->calculate(*setpoint, input); //  wrapped around so bigger so no need nerf 360
             }
             else
             {
-                output = internalPIDInstance->calculate(setpoint, input - angle_full_turn); // nerf it 360 to go forwards
+                output = internalPIDInstance->calculate(*setpoint, input - angle_full_turn); // nerf it 360 to go forwards
             }
         }
     }
     else
     {
-        output = internalPIDInstance->calculate(setpoint, input); // return value stored in output
+        output = internalPIDInstance->calculate((double)(*setpoint), input); // return value stored in output
     }
 
     //------------------Write to motor------------------//
@@ -386,7 +389,7 @@ bool RoverArmMotor::setMultiplierBool(bool mult, double ratio)
 // For display purposes
 double RoverArmMotor::get_setpoint()
 {
-    return setpoint / gear_ratio;
+    return *setpoint / gear_ratio;
 }
 
 // Remove gear_ration burden from user.
@@ -404,7 +407,7 @@ bool RoverArmMotor::new_setpoint(double angle)
     }
     if (temp_setpoint >= min_angle && temp_setpoint <= max_angle)
     {
-        setpoint = temp_setpoint;
+        *setpoint = temp_setpoint;
         return true;
     }
     else
@@ -543,6 +546,8 @@ int RoverArmMotor::get_current_angle_sw(double *angle)
             *angle = diff;
         }
     }
+    // ROS feedback.
+    *current_angle_float = (float)(*angle);
     return 0; // return 0 on success
 }
 
