@@ -1,4 +1,4 @@
-// #ifdef KILLSWITCH //LEAVE THIS AT THE TOP OF THIS FILE
+#ifdef KILLSWITCH //LEAVE THIS AT THE TOP OF THIS FILE
 
 #include <Arduino.h>
 #include "killswitch.h"
@@ -69,4 +69,4 @@ void readCurrents(){
   currentsKS[1] = ((float) reading2) * CURRENT_SENSOR_CONSTANT;
 }
 
-// #endif //LEAVE THIS AT THE BOTTOM OF THIS FILE
+#endif //LEAVE THIS AT THE BOTTOM OF THIS FILE

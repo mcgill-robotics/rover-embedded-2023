@@ -4,6 +4,7 @@
 #ifdef USE_IMU
 #include "Quaternion.h"
 #include "XimuReceiver.h"
+#include "TinyGPSPlus.h"
 #endif
 
 TinyGPSPlus gps;
