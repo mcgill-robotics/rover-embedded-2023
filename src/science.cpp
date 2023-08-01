@@ -52,12 +52,41 @@ void readAllMoistures(){
 
 void writeAllMotors(){
   stepper.move(scienceTargets[0] * GEAR_RATIO);
-  MOT1.setSpeed(scienceTargets[1]);
+  move(MOT1_DIR, MOT1_DIR_2, MOT1_PWM, scienceTargets[1]);
   float motorSpeed = scienceTargets[2];
   if((leadScrewState == Limits::down && motorSpeed < 0) || (leadScrewState == Limits::up && motorSpeed > 0)){
     motorSpeed = 0;
   }
-  MOT2.setSpeed(motorSpeed);
+  move(MOT2_DIR, MOT2_DIR_2, MOT2_PWM, motorSpeed);
+}
+void init_motors(){
+  pinMode(MOT1_DIR, OUTPUT); 
+  pinMode(MOT1_DIR_2, OUTPUT); 
+  pinMode(MOT1_PWM, OUTPUT);
+
+  pinMode(MOT2_DIR, OUTPUT);
+  pinMode(MOT2_DIR_2, OUTPUT);
+  pinMode(MOT2_PWM, OUTPUT);
+
+}
+void brake(){
+  digitalWrite(MOT1_DIR, LOW); 
+  digitalWrite(MOT1_DIR_2, LOW);
+}
+
+void forward(int dir1, int dir2){
+  digitalWrite(dir1, HIGH); 
+  digitalWrite(dir2, LOW); 
+}
+
+void reverse(int dir1, int dir2){
+  digitalWrite(dir1, LOW); 
+  digitalWrite(dir2, HIGH); 
+}
+
+void move(int dir1, int dir2, int pwmpin, int speed){
+  (speed > 0) ? forward(dir1, dir2) : reverse(dir1, dir2); 
+  analogWrite(pwmpin, speed*2.55);
 }
 
 void science_setup () {
@@ -73,6 +102,7 @@ void science_setup () {
   attachInterrupt(LIM_2, lim2ISR, FALLING);
   // stepper.moveTo(200);
   stepperTimer.begin(stepperISR, 1000000/STEPPER_FREQ);
+  init_motors(); 
 
   nh.initNode();
 

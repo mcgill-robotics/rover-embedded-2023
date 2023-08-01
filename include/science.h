@@ -1,8 +1,10 @@
 #include <Arduino.h>
 
 #define MOT1_DIR 2
+#define MOT1_DIR_2 19
 #define MOT1_PWM 3
 #define MOT2_DIR 4
+#define MOT2_DIR_2 18
 #define MOT2_PWM 5
 #define DIR 7
 #define STEP 8 
