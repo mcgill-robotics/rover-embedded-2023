@@ -1,4 +1,4 @@
-// #ifdef GPS
+#ifdef GPS
 
 #include "gps.h"
 #include "TinyGPSPlus.h"
@@ -50,4 +50,4 @@ void gps_loop(){
   #endif
 }
 
-// #endif
+#endif
