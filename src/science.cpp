@@ -1,28 +1,14 @@
-// #ifdef SCIENCE //LEAVE THIS AT THE TOP OF THIS FILE
-
-#include <Arduino.h>
+#ifdef SCIENCE //LEAVE THIS AT THE TOP OF THIS FILE
 #include "science.h"
-#include "DRV8834.h"
-#include "AccelStepper.h"
-#include "CytronMotorDriver.h"
-#include "ros.h"
-#include "std_msgs/Float32MultiArray.h"
 
 float scienceTargets[3];
 float scienceFeedback[5];
 
 AccelStepper stepper(AccelStepper::DRIVER, STEP, DIR);
-IntervalTimer stepperTimer;
+IntervalTimer stepperTimer, brakeTimer;
 
-int leadScrewState = 0;
-
-CytronMD MOT1(PWM_DIR, MOT1_PWM, MOT1_DIR);
-CytronMD MOT2(PWM_DIR, MOT2_PWM, MOT2_DIR);
-
-ros::NodeHandle nh;
-std_msgs::Float32MultiArray scienceFBMsg;
-std_msgs::Float32MultiArray scienceCmdMsg;
-ros::Publisher scienceFB("scienceFB", &scienceFBMsg);
+int leadScrewState = 0, brakeTimeDone = 1;
+float leadScrewLastSpeed = 0;
 
 enum Limits {
   off = 0,
@@ -30,17 +16,18 @@ enum Limits {
   down = -1
 };
 
-void scienceCB(const std_msgs::Float32MultiArray& input_msg){
-  scienceTargets[0] = input_msg.data[0];
-  scienceTargets[1] = input_msg.data[1];
-  scienceTargets[2] = input_msg.data[2];
+template <typename T> int sgn(T val) {
+    return (T(0) < val) - (val < T(0));
 }
-
-ros::Subscriber<std_msgs::Float32MultiArray> scienceCmd("scienceCmd", scienceCB);
 
 void stepperISR(){
   stepper.run();
-} 
+}
+
+void brakeCB(){
+  brakeTimeDone = 1;
+  brakeTimer.end();
+}
 
 void readAllMoistures(){
   scienceFeedback[0] = analogRead(MOIST_1) * (89.189189189/4095.0);
@@ -57,8 +44,20 @@ void writeAllMotors(){
   if((leadScrewState == Limits::down && motorSpeed < 0) || (leadScrewState == Limits::up && motorSpeed > 0)){
     motorSpeed = 0;
   }
-  move(MOT2_DIR, MOT2_DIR_2, MOT2_PWM, motorSpeed);
+  if((sgn(motorSpeed) != sgn(leadScrewLastSpeed)) || (leadScrewLastSpeed != 0 && motorSpeed == 0)){
+    motorSpeed = 0;
+    brake();
+    brakeTimer.begin(brakeCB, 100000);
+    brakeTimeDone = 0;
+  }
+  if(brakeTimeDone){
+    move(MOT2_DIR, MOT2_DIR_2, MOT2_PWM, motorSpeed);
+  }else{
+    move(MOT2_DIR, MOT2_DIR_2, MOT2_PWM, 0);
+  }
+  leadScrewLastSpeed = motorSpeed;
 }
+
 void init_motors(){
   pinMode(MOT1_DIR, OUTPUT); 
   pinMode(MOT1_DIR_2, OUTPUT); 
@@ -98,22 +97,11 @@ void science_setup () {
 
   stepper.setMaxSpeed(1000.0);
   stepper.setAcceleration(200.0);
+  analogReadResolution(12);
   attachInterrupt(LIM_1, lim1ISR, FALLING);
   attachInterrupt(LIM_2, lim2ISR, FALLING);
-  // stepper.moveTo(200);
   stepperTimer.begin(stepperISR, 1000000/STEPPER_FREQ);
-  init_motors(); 
-
-  nh.initNode();
-
-  scienceFBMsg.data = scienceFeedback;
-  scienceFBMsg.data_length = 5;
-  scienceCmdMsg.data_length = 3;
-
-  nh.advertise(scienceFB);
-  nh.subscribe(scienceCmd);
-
-  nh.negotiateTopics();
+  init_motors();
 }
 
 void science_loop () {
@@ -124,19 +112,21 @@ void science_loop () {
   readAllMoistures();
 
   writeAllMotors();
-
-  scienceFB.publish(&scienceFBMsg);
-  nh.spinOnce();
-  delay(5);
 }
 
 void lim1ISR(){
   leadScrewState = Limits::up;
+  brake();
+  brakeTimer.begin(brakeCB, 100000);
+  brakeTimeDone = 0;
 }
 
 void lim2ISR(){
   leadScrewState = Limits::down;
+  brake();
+  brakeTimer.begin(brakeCB, 100000);
+  brakeTimeDone = 0;
 }
 
 
-// #endif //LEAVE THIS AT THE BOTTOM OF THIS FILE
+#endif //LEAVE THIS AT THE BOTTOM OF THIS FILE
