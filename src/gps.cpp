@@ -1,6 +1,7 @@
-#ifdef GPS
+// #ifdef GPS
 
 #include "gps.h"
+#include "TinyGPSPlus.h"
 #ifdef USE_IMU
 #include "Quaternion.h"
 #include "XimuReceiver.h"
@@ -49,4 +50,4 @@ void gps_loop(){
   #endif
 }
 
-#endif
+// #endif
