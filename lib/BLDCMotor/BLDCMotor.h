@@ -7,7 +7,7 @@
 
 #define FORWARDS 1
 #define BACKWARDS -1
-#define PID_KP 0.35
+#define PID_KP 0.9
 #define PID_KI 0.0025
 #define PID_KD 0
 

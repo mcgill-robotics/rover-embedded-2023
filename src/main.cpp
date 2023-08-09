@@ -7,18 +7,22 @@
 #include "power.h"
 #include "gps.h"
 #include "ros.h"
+#include "antenna.h"
 #include "std_msgs/Float32MultiArray.h"
 
-#define CONTROL_LOOP_PERIOD_US 5000
+#define CONTROL_LOOP_PERIOD_US 10000
 
 static unsigned long lastTime;
 ros::NodeHandle nh;
 
-void scienceCB(const std_msgs::Float32MultiArray &input_msg);
-void powerCB(const std_msgs::Float32MultiArray &input_msg);
-void armBrushedCB(const std_msgs::Float32MultiArray &input_msg);
-void armBrushlessCB(const std_msgs::Float32MultiArray &input_msg);
-void driveCB(const std_msgs::Float32MultiArray &input_msg);
+void scienceCB(const std_msgs::Float32MultiArray& input_msg);
+void powerCB(const std_msgs::Float32MultiArray& input_msg);
+void panTiltAnglesCB(const std_msgs::Float32MultiArray& input_msg);
+void armBrushedCB(const std_msgs::Float32MultiArray& input_msg);
+void armBrushlessCB(const std_msgs::Float32MultiArray& input_msg);
+void driveCB(const std_msgs::Float32MultiArray& input_msg);
+void antennaCoordsCB(const std_msgs::Float32MultiArray& input_msg);
+void roverCoordsCB(const std_msgs::Float32MultiArray& input_msg);
 
 #ifdef SCIENCE
 std_msgs::Float32MultiArray scienceFBMsg;
@@ -27,30 +31,38 @@ ros::Publisher scienceFB("scienceFB", &scienceFBMsg);
 ros::Subscriber<std_msgs::Float32MultiArray> scienceCmd("scienceCmd", scienceCB);
 #endif
 #ifdef POWER_SYS
-std_msgs::Float32MultiArray currentPowerMsg;
+std_msgs::Float32MultiArray powerFBMsg;
+std_msgs::Float32MultiArray panTiltAnglesMsg;
 std_msgs::Float32MultiArray powerCmdMsg;
-ros::Publisher currentPower("currentPower", &currentPowerMsg);
+ros::Publisher powerFB("powerFB", &powerFBMsg);
 ros::Subscriber<std_msgs::Float32MultiArray> powerCmd("powerCmd", powerCB);
+ros::Subscriber<std_msgs::Float32MultiArray> panTiltAngles("panTiltAngles", panTiltAnglesCB);
 #endif
 #ifdef GPS
-std_msgs::Float32MultiArray gpsMsg;
-ros::Publisher pubGPS("roverGPSData", &gpsMsg);
+std_msgs::Float32MultiArray roverGPSDataMsg;
+ros::Publisher roverGPSData("roverGPSData", &roverGPSDataMsg);
+#endif
+#ifdef ANTENNA
+std_msgs::Float32MultiArray roverGPSDataMsg;
+std_msgs::Float32MultiArray antennaDataMsg;
+ros::Subscriber<std_msgs::Float32MultiArray> roverGPSData("roverGPSData", roverCoordsCB);
+ros::Subscriber<std_msgs::Float32MultiArray> antennaData("antennaData", antennaCoordsCB);
 #endif
 #ifdef USE_IMU
-std_msgs::Float32MultiArray imuMsg;
-ros::Publisher pubIMU("roverIMUData", &imuMsg);
+std_msgs::Float32MultiArray roverIMUDataMsg;
+ros::Publisher roverIMUData("roverIMUData", &roverIMUDataMsg);
 #endif
 #ifdef KILLSWITCH
-std_msgs::Float32MultiArray currentKSMsg;
-ros::Publisher currentKS("currentKS", &currentKSMsg);
+std_msgs::Float32MultiArray killswitchFBMsg;
+ros::Publisher killswitchFB("killswitchFB", &killswitchFBMsg);
 #endif
-#if BRUSHED_ARM == 1
+#ifdef BRUSHED_ARM
 std_msgs::Float32MultiArray armBrushedFBMsg;
 std_msgs::Float32MultiArray armBrushedCmdMsg;
 ros::Publisher armBrushedFB("armBrushedFB", &armBrushedFBMsg);
 ros::Subscriber<std_msgs::Float32MultiArray> armBrushedCmd("armBrushedCmd", armBrushedCB);
 #endif
-#if BRUSHLESS_ARM == 1
+#ifdef BRUSHLESS_ARM
 std_msgs::Float32MultiArray armBrushlessFBMsg;
 std_msgs::Float32MultiArray armBrushlessCmdMsg;
 ros::Publisher armBrushlessFB("armBrushlessFB", &armBrushlessFBMsg);
@@ -77,45 +89,54 @@ void setup()
 #endif
 #ifdef POWER_SYS
   power_setup();
-  currentPowerMsg.data = currentsPower;
-  currentPowerMsg.data_length = 8;
-  powerCmdMsg.data_length = 6;
+  powerFBMsg.data = currentsPower;
+  powerFBMsg.data_length = 8;
+  powerCmdMsg.data_length = 4;
+  panTiltAnglesMsg.data_length = 2;
 
-  nh.advertise(currentPower);
+  nh.advertise(powerFB);
   nh.subscribe(powerCmd);
+  nh.subscribe(panTiltAngles);
 #endif
 #ifdef GPS
   gps_setup();
-  gpsMsg.data = coords;
-  gpsMsg.data_length = 2;
-
-  nh.advertise(pubGPS);
+  roverGPSDataMsg.data = coords;
+  roverGPSDataMsg.data_length = 2;
+  nh.advertise(roverGPSData);
 #endif
 #ifdef USE_IMU
-  imuMsg.data = quaternion;
-  imuMsg.data_length = 6;
+  roverIMUDataMsg.data = quaternion;
+  roverIMUDataMsg.data_length = 6;
 
-  nh.advertise(pubIMU);
+  nh.advertise(roverIMUData);
+#endif
+#ifdef ANTENNA
+  roverGPSDataMsg.data = rover_coords;
+  roverGPSDataMsg.data_length = 2;
+  antennaDataMsg.data = antenna_positioning;
+  antennaDataMsg.data_length = 3;
+
+  nh.subscribe(roverGPSData);
+  nh.subscribe(antennaData);
 #endif
 #ifdef KILLSWITCH
   killswitch_setup();
-  currentKSMsg.data = currentsKS;
-  currentKSMsg.data_length = 2;
-
-  nh.advertise(currentKS);
+  killswitchFBMsg.data = currentsKS;
+  killswitchFBMsg.data_length = 2;
+  nh.advertise(killswitchFB);
 #endif
-#if BRUSHED_ARM == 1
+#ifdef BRUSHED_ARM
   brushed_arm_setup();
-  armBrushedFBMsg.data = armBrushedActualAngles;
+  armBrushedFBMsg.data = armBrushedTargetAngles;
   armBrushedFBMsg.data_length = 3;
   armBrushedCmdMsg.data_length = 3;
 
   nh.advertise(armBrushedFB);
   nh.subscribe(armBrushedCmd);
 #endif
-#if BRUSHLESS_ARM == 1
+#ifdef BRUSHLESS_ARM
   brushless_arm_setup();
-  armBrushlessFBMsg.data = armBrushlessActualAngles;
+  armBrushlessFBMsg.data = armBrushlessTargetAngles;
   armBrushlessFBMsg.data_length = 3;
   armBrushlessCmdMsg.data_length = 3;
 
@@ -149,28 +170,31 @@ void loop()
 #endif
 #ifdef POWER_SYS
   power_loop();
-  currentPower.publish(&currentPowerMsg);
-#endif
-#ifdef GPS
+  powerFB.publish(&powerFBMsg);
+  #endif
+  #ifdef GPS
   gps_loop();
-  pubGPS.publish(&gpsMsg);
-#endif
-#ifdef USE_IMU
-  pubIMU.publish(&imuMsg);
-#endif
-#ifdef KILLSWITCH
+  roverGPSData.publish(&roverGPSDataMsg);
+  #endif
+  #ifdef ANTENNA
+  antenna_loop();
+  #endif
+  #ifdef USE_IMU
+  roverIMUData.publish(&roverIMUDataMsg);
+  #endif
+  #ifdef KILLSWITCH
   killswitch_loop();
-  currentKS.publish(&currentKSMsg);
-#endif
-#if BRUSHED_ARM == 1
+  killswitchFB.publish(&killswitchFBMsg);
+  #endif
+  #ifdef BRUSHED_ARM
   brushed_arm_loop();
   armBrushedFB.publish(&armBrushedFBMsg);
-#endif
-#if BRUSHLESS_ARM == 1
+  #endif
+  #ifdef BRUSHLESS_ARM
   brushless_arm_loop();
   armBrushlessFB.publish(&armBrushlessFBMsg);
-#endif
-#ifdef DRIVE
+  #endif
+  #ifdef DRIVE
   drive_loop();
   driveFB.publish(&driveFBMsg);
 #endif
@@ -185,24 +209,24 @@ void scienceCB(const std_msgs::Float32MultiArray &input_msg)
   scienceTargets[2] = input_msg.data[2];
 }
 
-void powerCB(const std_msgs::Float32MultiArray &input_msg)
-{
-  powerAngles[0] = input_msg.data[0];
-  powerAngles[1] = input_msg.data[1];
-  powerRelays[0] = (int)input_msg.data[2];
-  powerRelays[1] = (int)input_msg.data[3];
-  powerRelays[2] = (int)input_msg.data[4];
-  powerRelays[3] = (int)input_msg.data[5];
+void powerCB(const std_msgs::Float32MultiArray& input_msg){
+  powerRelays[0] = (int) input_msg.data[0];
+  powerRelays[1] = (int) input_msg.data[1];
+  powerRelays[2] = (int) input_msg.data[2];
+  powerRelays[3] = (int) input_msg.data[3];
 }
 
-void armBrushedCB(const std_msgs::Float32MultiArray &input_msg)
-{
+void panTiltAnglesCB(const std_msgs::Float32MultiArray& input_msg){
+  powerAngles[0] = input_msg.data[0];
+  powerAngles[1] = input_msg.data[1];
+}
+
+void armBrushedCB(const std_msgs::Float32MultiArray& input_msg){
   armBrushedTargetAngles[0] = input_msg.data[0];
   armBrushedTargetAngles[1] = input_msg.data[1];
   armBrushedTargetAngles[2] = input_msg.data[2];
 }
-void armBrushlessCB(const std_msgs::Float32MultiArray &input_msg)
-{
+void armBrushlessCB(const std_msgs::Float32MultiArray& input_msg){
   armBrushlessTargetAngles[0] = input_msg.data[0];
   armBrushlessTargetAngles[1] = input_msg.data[1];
   armBrushlessTargetAngles[2] = input_msg.data[2];
@@ -213,4 +237,15 @@ void driveCB(const std_msgs::Float32MultiArray &input_msg)
   targetSpeeds[1] = input_msg.data[1];
   targetSpeeds[2] = input_msg.data[2];
   targetSpeeds[3] = input_msg.data[3];
+}
+
+void roverCoordsCB(const std_msgs::Float32MultiArray& input_msg){
+  rover_coords[0] = input_msg.data[0];
+  rover_coords[1] = input_msg.data[1];
+}
+
+void antennaCoordsCB(const std_msgs::Float32MultiArray& input_msg){
+  antenna_positioning[0] = input_msg.data[0];
+  antenna_positioning[1] = input_msg.data[1];
+  antenna_positioning[2] = input_msg.data[2];
 }
