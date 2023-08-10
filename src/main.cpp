@@ -12,7 +12,7 @@
 
 #define CONTROL_LOOP_PERIOD_US 10000
 
-unsigned long lastTime;
+static unsigned long lastTime;
 ros::NodeHandle nh;
 
 void scienceCB(const std_msgs::Float32MultiArray& input_msg);
@@ -75,9 +75,10 @@ ros::Publisher driveFB("driveFB", &driveFBMsg);
 ros::Subscriber<std_msgs::Float32MultiArray> driveCmd("driveCmd", driveCB);
 #endif
 
-void setup() {
+void setup()
+{
   nh.initNode();
-  #ifdef SCIENCE
+#ifdef SCIENCE
   science_setup();
   scienceFBMsg.data = scienceFeedback;
   scienceFBMsg.data_length = 5;
@@ -85,8 +86,8 @@ void setup() {
 
   nh.advertise(scienceFB);
   nh.subscribe(scienceCmd);
-  #endif
-  #ifdef POWER_SYS
+#endif
+#ifdef POWER_SYS
   power_setup();
   powerFBMsg.data = currentsPower;
   powerFBMsg.data_length = 8;
@@ -96,21 +97,20 @@ void setup() {
   nh.advertise(powerFB);
   nh.subscribe(powerCmd);
   nh.subscribe(panTiltAngles);
-  #endif
-  #ifdef GPS
+#endif
+#ifdef GPS
   gps_setup();
   roverGPSDataMsg.data = coords;
   roverGPSDataMsg.data_length = 2;
-
   nh.advertise(roverGPSData);
-  #endif
-  #ifdef USE_IMU
+#endif
+#ifdef USE_IMU
   roverIMUDataMsg.data = quaternion;
   roverIMUDataMsg.data_length = 6;
 
   nh.advertise(roverIMUData);
-  #endif
-  #ifdef ANTENNA
+#endif
+#ifdef ANTENNA
   roverGPSDataMsg.data = rover_coords;
   roverGPSDataMsg.data_length = 2;
   antennaDataMsg.data = antenna_positioning;
@@ -118,15 +118,14 @@ void setup() {
 
   nh.subscribe(roverGPSData);
   nh.subscribe(antennaData);
-  #endif
-  #ifdef KILLSWITCH
+#endif
+#ifdef KILLSWITCH
   killswitch_setup();
   killswitchFBMsg.data = currentsKS;
   killswitchFBMsg.data_length = 2;
-
   nh.advertise(killswitchFB);
-  #endif
-  #ifdef BRUSHED_ARM
+#endif
+#ifdef BRUSHED_ARM
   brushed_arm_setup();
   armBrushedFBMsg.data = armBrushedTargetAngles;
   armBrushedFBMsg.data_length = 3;
@@ -134,8 +133,8 @@ void setup() {
 
   nh.advertise(armBrushedFB);
   nh.subscribe(armBrushedCmd);
-  #endif
-  #ifdef BRUSHLESS_ARM
+#endif
+#ifdef BRUSHLESS_ARM
   brushless_arm_setup();
   armBrushlessFBMsg.data = armBrushlessTargetAngles;
   armBrushlessFBMsg.data_length = 3;
@@ -143,8 +142,8 @@ void setup() {
 
   nh.advertise(armBrushlessFB);
   nh.subscribe(armBrushlessCmd);
-  #endif
-  #ifdef DRIVE
+#endif
+#ifdef DRIVE
   drive_setup();
   driveFBMsg.data = realSpeeds;
   driveFBMsg.data_length = 4;
@@ -152,22 +151,24 @@ void setup() {
 
   nh.advertise(driveFB);
   nh.subscribe(driveCmd);
-  #endif
+#endif
 
   nh.negotiateTopics();
 
   lastTime = micros();
 }
 
-void loop() {
-  while(micros() < lastTime + CONTROL_LOOP_PERIOD_US);
+void loop()
+{
+  while (micros() < lastTime + CONTROL_LOOP_PERIOD_US)
+    ;
   lastTime += CONTROL_LOOP_PERIOD_US;
 
-  #ifdef SCIENCE
+#ifdef SCIENCE
   science_loop();
   scienceFB.publish(&scienceFBMsg);
-  #endif
-  #ifdef POWER_SYS
+#endif
+#ifdef POWER_SYS
   power_loop();
   powerFB.publish(&powerFBMsg);
   #endif
@@ -196,12 +197,13 @@ void loop() {
   #ifdef DRIVE
   drive_loop();
   driveFB.publish(&driveFBMsg);
-  #endif
+#endif
 
   nh.spinOnce();
 }
 
-void scienceCB(const std_msgs::Float32MultiArray& input_msg){
+void scienceCB(const std_msgs::Float32MultiArray &input_msg)
+{
   scienceTargets[0] = input_msg.data[0];
   scienceTargets[1] = input_msg.data[1];
   scienceTargets[2] = input_msg.data[2];
@@ -229,7 +231,8 @@ void armBrushlessCB(const std_msgs::Float32MultiArray& input_msg){
   armBrushlessTargetAngles[1] = input_msg.data[1];
   armBrushlessTargetAngles[2] = input_msg.data[2];
 }
-void driveCB(const std_msgs::Float32MultiArray& input_msg){
+void driveCB(const std_msgs::Float32MultiArray &input_msg)
+{
   targetSpeeds[0] = input_msg.data[0];
   targetSpeeds[1] = input_msg.data[1];
   targetSpeeds[2] = input_msg.data[2];

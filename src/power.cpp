@@ -17,8 +17,8 @@ void power_setup() {
   pinMode(PWM_Servo_2_Pin, OUTPUT);
   pinMode(Arm_24V_Pin, OUTPUT);
   pinMode(Arm_12V_Pin, OUTPUT);
-  pinMode(Arm24_Curr_Pin, INPUT);
-  pinMode(Arm12_Curr_Pin, INPUT);
+  pinMode(armBrushless_Curr_Pin, INPUT);
+  pinMode(armBrushed_Curr_Pin, INPUT);
   pinMode(Drive_Pin, OUTPUT);
   pinMode(Science_Pin, OUTPUT);
   pinMode(Drive_Curr_1_Pin, INPUT);
@@ -49,8 +49,8 @@ void readAllCurrents(){
   currentsPower[1] = analogRead(Drive_Curr_2_Pin) * CURRENT_SENSOR_CONSTANT;
   currentsPower[2] = analogRead(Drive_Curr_3_Pin) * CURRENT_SENSOR_CONSTANT;
   currentsPower[3] = analogRead(Drive_Curr_4_Pin) * CURRENT_SENSOR_CONSTANT;
-  currentsPower[4] = analogRead(Arm12_Curr_Pin) * CURRENT_SENSOR_CONSTANT;
-  currentsPower[5] = analogRead(Arm24_Curr_Pin) * CURRENT_SENSOR_CONSTANT;
+  currentsPower[4] = analogRead(armBrushed_Curr_Pin) * CURRENT_SENSOR_CONSTANT;
+  currentsPower[5] = analogRead(armBrushless_Curr_Pin) * CURRENT_SENSOR_CONSTANT;
   currentsPower[6] = analogRead(Sci12_Curr_Pin) * CURRENT_SENSOR_CONSTANT;
   currentsPower[7] = analogRead(Sci5_Curr_Pin) * CURRENT_SENSOR_CONSTANT;
 

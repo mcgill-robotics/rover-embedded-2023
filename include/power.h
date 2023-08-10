@@ -11,8 +11,8 @@
 #define Drive_Curr_2_Pin 15
 #define Drive_Curr_3_Pin 16
 #define Drive_Curr_4_Pin 17
-#define Arm12_Curr_Pin 18
-#define Arm24_Curr_Pin 19
+#define armBrushed_Curr_Pin 18
+#define armBrushless_Curr_Pin 19
 #define Sci5_Curr_Pin 20
 #define Sci12_Curr_Pin 21
 
