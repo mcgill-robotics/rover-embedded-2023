@@ -79,8 +79,8 @@ void setup() {
   nh.initNode();
   #ifdef SCIENCE
   science_setup();
-  scienceFBMsg.data = moistures;
-  scienceFBMsg.data_length = 4;
+  scienceFBMsg.data = scienceFeedback;
+  scienceFBMsg.data_length = 5;
   scienceCmdMsg.data_length = 3;
 
   nh.advertise(scienceFB);
