@@ -15,14 +15,14 @@
 static unsigned long lastTime;
 ros::NodeHandle nh;
 
-void scienceCB(const std_msgs::Float32MultiArray& input_msg);
-void powerCB(const std_msgs::Float32MultiArray& input_msg);
-void panTiltAnglesCB(const std_msgs::Float32MultiArray& input_msg);
-void armBrushedCB(const std_msgs::Float32MultiArray& input_msg);
-void armBrushlessCB(const std_msgs::Float32MultiArray& input_msg);
-void driveCB(const std_msgs::Float32MultiArray& input_msg);
-void antennaCoordsCB(const std_msgs::Float32MultiArray& input_msg);
-void roverCoordsCB(const std_msgs::Float32MultiArray& input_msg);
+void scienceCB(const std_msgs::Float32MultiArray &input_msg);
+void powerCB(const std_msgs::Float32MultiArray &input_msg);
+void panTiltAnglesCB(const std_msgs::Float32MultiArray &input_msg);
+void armBrushedCB(const std_msgs::Float32MultiArray &input_msg);
+void armBrushlessCB(const std_msgs::Float32MultiArray &input_msg);
+void driveCB(const std_msgs::Float32MultiArray &input_msg);
+void antennaCoordsCB(const std_msgs::Float32MultiArray &input_msg);
+void roverCoordsCB(const std_msgs::Float32MultiArray &input_msg);
 
 #ifdef SCIENCE
 std_msgs::Float32MultiArray scienceFBMsg;
@@ -56,13 +56,13 @@ ros::Publisher roverIMUData("roverIMUData", &roverIMUDataMsg);
 std_msgs::Float32MultiArray killswitchFBMsg;
 ros::Publisher killswitchFB("killswitchFB", &killswitchFBMsg);
 #endif
-#ifdef BRUSHED_ARM
+#if BRUSHED_ARM == 1
 std_msgs::Float32MultiArray armBrushedFBMsg;
 std_msgs::Float32MultiArray armBrushedCmdMsg;
 ros::Publisher armBrushedFB("armBrushedFB", &armBrushedFBMsg);
 ros::Subscriber<std_msgs::Float32MultiArray> armBrushedCmd("armBrushedCmd", armBrushedCB);
 #endif
-#ifdef BRUSHLESS_ARM
+#if BRUSHLESS_ARM == 1
 std_msgs::Float32MultiArray armBrushlessFBMsg;
 std_msgs::Float32MultiArray armBrushlessCmdMsg;
 ros::Publisher armBrushlessFB("armBrushlessFB", &armBrushlessFBMsg);
@@ -125,18 +125,18 @@ void setup()
   killswitchFBMsg.data_length = 2;
   nh.advertise(killswitchFB);
 #endif
-#ifdef BRUSHED_ARM
+#if BRUSHED_ARM == 1
   brushed_arm_setup();
-  armBrushedFBMsg.data = armBrushedTargetAngles;
+  armBrushedFBMsg.data = armBrushedActualAngles;
   armBrushedFBMsg.data_length = 3;
   armBrushedCmdMsg.data_length = 3;
 
   nh.advertise(armBrushedFB);
   nh.subscribe(armBrushedCmd);
 #endif
-#ifdef BRUSHLESS_ARM
+#if BRUSHLESS_ARM == 1
   brushless_arm_setup();
-  armBrushlessFBMsg.data = armBrushlessTargetAngles;
+  armBrushlessFBMsg.data = armBrushlessActualAngles;
   armBrushlessFBMsg.data_length = 3;
   armBrushlessCmdMsg.data_length = 3;
 
@@ -171,30 +171,30 @@ void loop()
 #ifdef POWER_SYS
   power_loop();
   powerFB.publish(&powerFBMsg);
-  #endif
-  #ifdef GPS
+#endif
+#ifdef GPS
   gps_loop();
   roverGPSData.publish(&roverGPSDataMsg);
-  #endif
-  #ifdef ANTENNA
+#endif
+#ifdef ANTENNA
   antenna_loop();
-  #endif
-  #ifdef USE_IMU
+#endif
+#ifdef USE_IMU
   roverIMUData.publish(&roverIMUDataMsg);
-  #endif
-  #ifdef KILLSWITCH
+#endif
+#ifdef KILLSWITCH
   killswitch_loop();
   killswitchFB.publish(&killswitchFBMsg);
-  #endif
-  #ifdef BRUSHED_ARM
+#endif
+#if BRUSHED_ARM == 1
   brushed_arm_loop();
   armBrushedFB.publish(&armBrushedFBMsg);
-  #endif
-  #ifdef BRUSHLESS_ARM
+#endif
+#if BRUSHLESS_ARM == 1
   brushless_arm_loop();
   armBrushlessFB.publish(&armBrushlessFBMsg);
-  #endif
-  #ifdef DRIVE
+#endif
+#ifdef DRIVE
   drive_loop();
   driveFB.publish(&driveFBMsg);
 #endif
@@ -209,24 +209,28 @@ void scienceCB(const std_msgs::Float32MultiArray &input_msg)
   scienceTargets[2] = input_msg.data[2];
 }
 
-void powerCB(const std_msgs::Float32MultiArray& input_msg){
-  powerRelays[0] = (int) input_msg.data[0];
-  powerRelays[1] = (int) input_msg.data[1];
-  powerRelays[2] = (int) input_msg.data[2];
-  powerRelays[3] = (int) input_msg.data[3];
+void powerCB(const std_msgs::Float32MultiArray &input_msg)
+{
+  powerRelays[0] = (int)input_msg.data[0];
+  powerRelays[1] = (int)input_msg.data[1];
+  powerRelays[2] = (int)input_msg.data[2];
+  powerRelays[3] = (int)input_msg.data[3];
 }
 
-void panTiltAnglesCB(const std_msgs::Float32MultiArray& input_msg){
+void panTiltAnglesCB(const std_msgs::Float32MultiArray &input_msg)
+{
   powerAngles[0] = input_msg.data[0];
   powerAngles[1] = input_msg.data[1];
 }
 
-void armBrushedCB(const std_msgs::Float32MultiArray& input_msg){
+void armBrushedCB(const std_msgs::Float32MultiArray &input_msg)
+{
   armBrushedTargetAngles[0] = input_msg.data[0];
   armBrushedTargetAngles[1] = input_msg.data[1];
   armBrushedTargetAngles[2] = input_msg.data[2];
 }
-void armBrushlessCB(const std_msgs::Float32MultiArray& input_msg){
+void armBrushlessCB(const std_msgs::Float32MultiArray &input_msg)
+{
   armBrushlessTargetAngles[0] = input_msg.data[0];
   armBrushlessTargetAngles[1] = input_msg.data[1];
   armBrushlessTargetAngles[2] = input_msg.data[2];
@@ -239,12 +243,14 @@ void driveCB(const std_msgs::Float32MultiArray &input_msg)
   targetSpeeds[3] = input_msg.data[3];
 }
 
-void roverCoordsCB(const std_msgs::Float32MultiArray& input_msg){
+void roverCoordsCB(const std_msgs::Float32MultiArray &input_msg)
+{
   rover_coords[0] = input_msg.data[0];
   rover_coords[1] = input_msg.data[1];
 }
 
-void antennaCoordsCB(const std_msgs::Float32MultiArray& input_msg){
+void antennaCoordsCB(const std_msgs::Float32MultiArray &input_msg)
+{
   antenna_positioning[0] = input_msg.data[0];
   antenna_positioning[1] = input_msg.data[1];
   antenna_positioning[2] = input_msg.data[2];
