@@ -10,6 +10,8 @@
 #define GPIO_PIN_RESET 0
 #define GPIO_PIN_SET 1
 
+#define DELAY_FACTOR 1
+
 class RoverArmMotor
 {
 

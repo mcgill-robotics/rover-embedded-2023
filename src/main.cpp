@@ -21,7 +21,7 @@ void panTiltAnglesCB(const std_msgs::Float32MultiArray& input_msg);
 void armBrushedCB(const std_msgs::Float32MultiArray& input_msg);
 void armBrushlessCB(const std_msgs::Float32MultiArray& input_msg);
 void driveCB(const std_msgs::Float32MultiArray& input_msg);
-void antennaCoordsCB(const std_msgs::Float32MultiArray& input_msg);
+void antennaHeadingParamsCB(const std_msgs::Float32MultiArray& input_msg);
 void roverCoordsCB(const std_msgs::Float32MultiArray& input_msg);
 
 #ifdef SCIENCE
@@ -45,8 +45,10 @@ ros::Publisher roverGPSData("roverGPSData", &roverGPSDataMsg);
 #ifdef ANTENNA
 std_msgs::Float32MultiArray roverGPSDataMsg;
 std_msgs::Float32MultiArray antennaDataMsg;
+std_msgs::Float32MultiArray antennaDataEchoMsg;
 ros::Subscriber<std_msgs::Float32MultiArray> roverGPSData("roverGPSData", roverCoordsCB);
-ros::Subscriber<std_msgs::Float32MultiArray> antennaData("antennaData", antennaCoordsCB);
+ros::Subscriber<std_msgs::Float32MultiArray> antennaData("antennaData", antennaHeadingParamsCB);
+ros::Publisher antennaDataEcho("antennaDataEcho", &antennaDataEchoMsg);
 #endif
 #ifdef USE_IMU
 std_msgs::Float32MultiArray roverIMUDataMsg;
@@ -111,13 +113,16 @@ void setup()
   nh.advertise(roverIMUData);
 #endif
 #ifdef ANTENNA
+  antenna_setup();
   roverGPSDataMsg.data = rover_coords;
   roverGPSDataMsg.data_length = 2;
-  antennaDataMsg.data = antenna_positioning;
-  antennaDataMsg.data_length = 3;
-
+  antennaDataMsg.data = antenna_heading_params;
+  antennaDataMsg.data_length = 4;
+  antennaDataEchoMsg.data = servo_angle;
+  antennaDataEchoMsg.data_length = 1;
   nh.subscribe(roverGPSData);
   nh.subscribe(antennaData);
+  nh.advertise(antennaDataEcho);
 #endif
 #ifdef KILLSWITCH
   killswitch_setup();
@@ -178,6 +183,7 @@ void loop()
   #endif
   #ifdef ANTENNA
   antenna_loop();
+  antennaDataEcho.publish(&antennaDataEchoMsg);
   #endif
   #ifdef USE_IMU
   roverIMUData.publish(&roverIMUDataMsg);
@@ -244,8 +250,9 @@ void roverCoordsCB(const std_msgs::Float32MultiArray& input_msg){
   rover_coords[1] = input_msg.data[1];
 }
 
-void antennaCoordsCB(const std_msgs::Float32MultiArray& input_msg){
-  antenna_positioning[0] = input_msg.data[0];
-  antenna_positioning[1] = input_msg.data[1];
-  antenna_positioning[2] = input_msg.data[2];
+void antennaHeadingParamsCB(const std_msgs::Float32MultiArray& input_msg){
+  antenna_heading_params[0] = input_msg.data[0];
+  antenna_heading_params[1] = input_msg.data[1];
+  antenna_heading_params[2] = input_msg.data[2];
+  antenna_heading_params[3] = input_msg.data[3];
 }
