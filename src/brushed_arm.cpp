@@ -95,6 +95,7 @@ void brushed_arm_setup()
   End_Effector.setAngleLimits(MIN_FLOAT, MAX_FLOAT);
   End_Effector.set_safety_pins(-1, LIMIT_END_EFFECTOR_MAX, LIMIT_END_EFFECTOR_MIN);
   pinMode(END_EFFECTOR_LASER, OUTPUT);
+  digitalWrite(END_EFFECTOR_LASER, HIGH);
   End_Effector.begin(0, 0, 0, 0, 0, 0);
 #endif
 
@@ -221,8 +222,8 @@ void attach_all_interrupts()
 #endif
 
 #if TEST_END_EFFECTOR_CYTRON == 1
-  attachInterrupt(digitalPinToInterrupt(LIMIT_END_EFFECTOR_MAX), limit_end_effector_max_int, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(LIMIT_END_EFFECTOR_MIN), limit_end_effector_min_int, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(LIMIT_END_EFFECTOR_MAX), limit_end_effector_max_int, FALLING_EDGE);
+  attachInterrupt(digitalPinToInterrupt(LIMIT_END_EFFECTOR_MIN), limit_end_effector_min_int, FALLING_EDGE);
 #endif
 }
 #endif // LEAVE THIS AT THE BOTTOM OF THIS FILE

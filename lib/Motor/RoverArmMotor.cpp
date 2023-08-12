@@ -284,13 +284,15 @@ void RoverArmMotor::tick()
         {
             if (output < 0)
             {
-                output *= 3.0f;
-                output += 25.0f;
+                double temp_output = abs(output);
+                temp_output *= 3.0f;
+                temp_output += 25.0f;
                 if (diff < 10.0f)
                 {
-                    output *= 1.0f;
+                    temp_output *= 1.0f;
                 }
-                output = max(output, -240.0f);
+                // Capping output.
+                output = max((-1.0f) * temp_output, -240.0f);
             }
             else
             {
