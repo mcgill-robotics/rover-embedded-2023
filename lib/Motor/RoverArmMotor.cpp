@@ -300,7 +300,7 @@ void RoverArmMotor::tick()
             {
                 double temp_output = abs(output);
                 temp_output *= 3.0f;
-                temp_output += 25.0f;
+                temp_output += 40.0f;
                 if (diff < 10.0f)
                 {
                     temp_output *= 1.0f;
@@ -313,6 +313,17 @@ void RoverArmMotor::tick()
                 // Light braking.
                 // output = -25.0f;
                 output = 0.0f;
+            }
+        }
+        if (fight_gravity_2)
+        {
+            if (output < 0 && currentAngle > 0)
+            {
+                double temp_output = abs(output);
+                temp_output *= 1.8f;
+                temp_output += 20.0f;
+                // Capping output.
+                output = max((-1.0f) * temp_output, -220.0f);
             }
         }
         this->disengage_brake();

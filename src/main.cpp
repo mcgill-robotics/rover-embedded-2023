@@ -156,8 +156,6 @@ void setup()
   nh.subscribe(driveCmd);
 #endif
 
-  // string_pub = nh.advertise<std_msgs::String>("string_pub", 5);
-
   nh.negotiateTopics();
   // while (!nh.connected())
   // {

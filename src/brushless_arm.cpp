@@ -81,6 +81,7 @@ void brushless_arm_setup()
   Shoulder.setAngleLimits(SHOULDER_MIN_ANGLE, SHOULDER_MAX_ANGLE);
   Shoulder.stop_tick = 1;
   Shoulder.error_range = 1.0f;
+  Shoulder.fight_gravity_2 = 1;
   Shoulder.set_safety_pins(SHOULDER_BRAKE, LIMIT_SHOULDER_MAX, LIMIT_SHOULDER_MIN);
 
   Shoulder.begin(REG_KP_SHOULDER, REG_KI_SHOULDER, REG_KD_SHOULDER, REG_KP_SHOULDER_AGG, REG_KI_SHOULDER_AGG, REG_KD_SHOULDER_AGG);
