@@ -66,7 +66,6 @@ void brushless_arm_setup()
   Elbow.setAngleLimits(ELBOW_MIN_ANGLE, ELBOW_MAX_ANGLE);
   Elbow.stop_tick = 1;
   Elbow.fight_gravity = 1;
-  Waist.error_range = 3.0f;
   Elbow.set_safety_pins(ELBOW_BRAKE, LIMIT_ELBOW_MAX, LIMIT_ELBOW_MIN);
 
   Elbow.begin(REG_KP_ELBOW, REG_KI_ELBOW, REG_KD_ELBOW, REG_KP_ELBOW_AGG, REG_KI_ELBOW_AGG, REG_KD_ELBOW_AGG);

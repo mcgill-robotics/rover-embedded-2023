@@ -3,12 +3,27 @@
 #include "Teensy_PWM.h"
 #include <movingAvg.h>
 #include <cstdint>
+#include <ros.h>
+#include "std_msgs/Float32MultiArray.h"
+#include "std_msgs/String.h"
+
 #define SPI_HandleTypeDef void
 #define GPIO_TypeDef void
 #define GPIO_PinState int
 #define TIM_HandleTypeDef void
 #define GPIO_PIN_RESET 0
 #define GPIO_PIN_SET 1
+
+#define ROS_PUBLISH_PRINTF(publisher, format, ...)               \
+    do                                                           \
+    {                                                            \
+        char buffer[256];                                        \
+        snprintf(buffer, sizeof(buffer), format, ##__VA_ARGS__); \
+        std_msgs::String msg;                                    \
+        msg.data = buffer;                                       \
+        publisher.publish(&msg);                                 \
+    } while (0)
+extern ros::Publisher string_pub;
 
 class RoverArmMotor
 {
@@ -121,6 +136,11 @@ public: // TESTING only
     float inverted;
     int inverted_angle;
     double error_range;
+
+    double angle_history[5];
+    int angle_history_index = 0;
+    double gauss_d_coefficients[5] = {0.10798193, 0.24197072, 0, -0.24197072, -0.10798193};
+    double convolveWithGaussian();
 
     enum ActuationStates
     {

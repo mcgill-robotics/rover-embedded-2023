@@ -10,6 +10,9 @@
 #include <cmath>
 #include "rover_arm.h"
 
+// ros::Publisher string_pub;
+extern ros::NodeHandle nh;
+
 #define BLUE_ROBOTICS_STOP_DUTY_CYCLE 60.0f
 
 // The motor will not move until begin() is called!
@@ -173,6 +176,7 @@ void RoverArmMotor::tick()
 
     /*------------------Get current angle------------------*/
     int error = get_current_angle_sw(&currentAngle);
+
     if (error == -1)
     {
         encoder_error = 1;
@@ -185,6 +189,9 @@ void RoverArmMotor::tick()
         encoder_error = 0;
     }
 
+    angle_history[angle_history_index] = currentAngle;
+    angle_history_index = (angle_history_index + 1) % 5; // assuming a buffer size of 5
+
     //------------------Remove jitter------------------//
     // If the change in angle is less than the threshold, return early.
     double diff;
@@ -196,12 +203,19 @@ void RoverArmMotor::tick()
     {
         diff = abs(currentAngle - setpoint_internal);
     }
-    if (diff < error_range)
+    double temp_speed = convolveWithGaussian();
+    // if (diff < error_range)
+    char buffer[128];
+    sprintf(buffer, "diff: %f, temp_speed: %f, angle: %f, setpoint: %f", diff, temp_speed, *current_angle_float, *setpoint);
+    nh.logwarn(buffer);
+
+    if (temp_speed < 0.02 && diff < error_range)
     {
         output = 0;
         this->engage_brake();
         this->stop(); // stop the motor
         internalPIDInstance->reset_integral();
+        // internalPIDInstance->calculate((double)(setpoint_internal), input);
         return;
     }
 
@@ -594,4 +608,21 @@ void RoverArmMotor::set_safety_pins(int brake_pin, int limit_pin_max, int limit_
     pinMode(_brake_pin, OUTPUT);
     pinMode(_limit_pin_max, INPUT_PULLUP);
     pinMode(_limit_pin_min, INPUT_PULLUP);
+}
+
+double RoverArmMotor::convolveWithGaussian()
+{
+    double result = 0.0;
+
+    // Perform convolution
+    for (int i = 0; i < 5; i++)
+    {
+        // Calculate the index for angle_history, considering the circular buffer
+        int index = (angle_history_index + i) % 5;
+
+        // Multiply the corresponding elements and add to the result
+        result += angle_history[index] * gauss_d_coefficients[i];
+    }
+
+    return result;
 }

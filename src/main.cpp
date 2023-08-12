@@ -9,6 +9,7 @@
 #include "ros.h"
 #include "antenna.h"
 #include "std_msgs/Float32MultiArray.h"
+#include "std_msgs/String.h"
 #include "RoverArmMotor.h"
 
 #define CONTROL_LOOP_PERIOD_US 5000
@@ -155,6 +156,8 @@ void setup()
   nh.subscribe(driveCmd);
 #endif
 
+  // string_pub = nh.advertise<std_msgs::String>("string_pub", 5);
+
   nh.negotiateTopics();
   // while (!nh.connected())
   // {
@@ -169,6 +172,16 @@ void loop()
   while (micros() < lastTime + CONTROL_LOOP_PERIOD_US)
     ;
   lastTime += CONTROL_LOOP_PERIOD_US;
+
+  // while (!nh.connected())
+  // {
+  //   nh.spinOnce();
+  // }
+  // nh.logdebug("Debug Statement");
+  // nh.loginfo("Program info");
+  // nh.logwarn("Warnings.");
+  // nh.logerror("Errors..");
+  // nh.logfatal("Fatalities!");
 
 #ifdef SCIENCE
   science_loop();
@@ -207,10 +220,6 @@ void loop()
 #endif
 
   nh.spinOnce();
-  // while (!nh.connected())
-  // {
-  //   nh.negotiateTopics();
-  // }
 }
 
 void scienceCB(const std_msgs::Float32MultiArray &input_msg)

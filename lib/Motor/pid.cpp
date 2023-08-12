@@ -28,6 +28,9 @@
 #include "pid.h"
 #include <Arduino.h>
 #include "rover_arm.h"
+#include "RoverArmMotor.h"
+
+extern ros::NodeHandle nh;
 
 using namespace std;
 
@@ -103,17 +106,15 @@ double PIDImpl::calculate(double setpoint, double pv)
     double Iout = _Ki * _integral;
 
     // Derivative term
-    // double derivative = (error - _pre_error) / _dt;
-    // double Dout = _Kd * derivative;
+    double derivative = (error - _pre_error) / _dt;
+    double Dout = _Kd * derivative;
 
-    double derivative = error / _dt;
-    double Dout = _Kd * derivative / 100;
+    // double derivative = error / _dt;
+    // double Dout = _Kd * derivative / 100;
 
     // Calculate total output
     double output = Pout + Iout + Dout;
-#if DEBUG_PID == 1
-    printf("Pout: %f, Iout: %f, Dout: %f, error: %f, _pre_error: %f\r\n", Pout, Iout, Dout, error, _pre_error);
-#endif
+
     // Restrict to max/min
     if (output > _max)
         output = _max;
@@ -122,9 +123,13 @@ double PIDImpl::calculate(double setpoint, double pv)
 
     // Save error to previous error
     _pre_error = error;
-#if DEBUG_PID == 1
-    Serial.printf("output: %f\r\n", output);
-#endif
+
+    char buffer[256];
+    sprintf(buffer,
+            "Pout: %f, Iout: %f, Dout: %f, error: %f, _pre_error: %f, output: %f\r\n",
+            Pout, Iout, Dout, error, _pre_error, output);
+    nh.loginfo(buffer);
+
     return output;
 }
 
