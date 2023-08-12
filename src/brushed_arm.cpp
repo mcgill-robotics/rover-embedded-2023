@@ -59,7 +59,7 @@ void brushed_arm_setup()
 
   /*---WRIST_ROLL_CYTRON setup---*/
 #if TEST_WRIST_ROLL_CYTRON == 1
-  Wrist_Roll.wrist_waist = 1;
+  // Wrist_Roll.wrist_waist = 1;
   // Wrist_Roll.stop_tick = 1;
   Wrist_Roll.set_gear_ratio(WRIST_ROLL_GEAR_RATIO);
   Wrist_Roll.setAngleLimits(WRIST_ROLL_MIN_ANGLE, WRIST_ROLL_MAX_ANGLE);
@@ -93,6 +93,7 @@ void brushed_arm_setup()
 #if TEST_END_EFFECTOR_CYTRON == 1
   End_Effector.wrist_waist = 0;
   End_Effector.setAngleLimits(MIN_FLOAT, MAX_FLOAT);
+  End_Effector.set_safety_pins(-1, LIMIT_END_EFFECTOR_MAX, LIMIT_END_EFFECTOR_MIN);
   pinMode(END_EFFECTOR_LASER, OUTPUT);
   End_Effector.begin(0, 0, 0, 0, 0, 0);
 #endif
@@ -180,6 +181,7 @@ void limit_end_effector_max_int()
       limit_end_effector_max_activated = 1;
       End_Effector.stop();
       End_Effector.reverse();
+      End_Effector.new_setpoint(-10.0f);
     }
     else
     {
@@ -200,6 +202,7 @@ void limit_end_effector_min_int()
       limit_end_effector_min_activated = 1;
       End_Effector.stop();
       End_Effector.forward();
+      End_Effector.new_setpoint(10.0f);
     }
     else
     {

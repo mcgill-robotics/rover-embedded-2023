@@ -9,8 +9,9 @@
 #include "ros.h"
 #include "antenna.h"
 #include "std_msgs/Float32MultiArray.h"
+#include "RoverArmMotor.h"
 
-#define CONTROL_LOOP_PERIOD_US 10000
+#define CONTROL_LOOP_PERIOD_US 5000
 
 static unsigned long lastTime;
 ros::NodeHandle nh;
@@ -61,6 +62,7 @@ std_msgs::Float32MultiArray armBrushedFBMsg;
 std_msgs::Float32MultiArray armBrushedCmdMsg;
 ros::Publisher armBrushedFB("armBrushedFB", &armBrushedFBMsg);
 ros::Subscriber<std_msgs::Float32MultiArray> armBrushedCmd("armBrushedCmd", armBrushedCB);
+extern RoverArmMotor Wrist_Pitch;
 #endif
 #if BRUSHLESS_ARM == 1
 std_msgs::Float32MultiArray armBrushlessFBMsg;
@@ -154,6 +156,10 @@ void setup()
 #endif
 
   nh.negotiateTopics();
+  // while (!nh.connected())
+  // {
+  //   nh.negotiateTopics();
+  // }
 
   lastTime = micros();
 }
@@ -188,6 +194,7 @@ void loop()
 #endif
 #if BRUSHED_ARM == 1
   brushed_arm_loop();
+  // Wrist_Pitch.get_current_angle_sw(&Wrist_Pitch.currentAngle);
   armBrushedFB.publish(&armBrushedFBMsg);
 #endif
 #if BRUSHLESS_ARM == 1
@@ -200,6 +207,10 @@ void loop()
 #endif
 
   nh.spinOnce();
+  // while (!nh.connected())
+  // {
+  //   nh.negotiateTopics();
+  // }
 }
 
 void scienceCB(const std_msgs::Float32MultiArray &input_msg)
