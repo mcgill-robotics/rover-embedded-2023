@@ -68,7 +68,10 @@ void brushed_arm_setup()
                    REG_KP_WRIST_ROLL_AGG, REG_KI_WRIST_ROLL_AGG, REG_KD_WRIST_ROLL_AGG);
 
   // Assume at zero angle at startup.
+  Wrist_Roll.reset_encoder();
+  Wrist_Roll.set_zero_angle();
   Wrist_Roll.set_current_as_zero_angle_sw();
+  delay(100);
   Wrist_Roll.new_setpoint(0.0);
 #endif
 
@@ -182,7 +185,13 @@ void limit_end_effector_max_int()
       limit_end_effector_max_activated = 1;
       End_Effector.stop();
       End_Effector.reverse();
-      End_Effector.new_setpoint(-10.0f);
+      if (*(End_Effector.setpoint) < 0)
+      {
+      }
+      else
+      {
+        End_Effector.new_setpoint(-10.0f);
+      }
     }
     else
     {
@@ -203,7 +212,13 @@ void limit_end_effector_min_int()
       limit_end_effector_min_activated = 1;
       End_Effector.stop();
       End_Effector.forward();
-      End_Effector.new_setpoint(10.0f);
+      if (*(End_Effector.setpoint) > 0)
+      {
+      }
+      else
+      {
+        End_Effector.new_setpoint(10.0f);
+      }
     }
     else
     {
