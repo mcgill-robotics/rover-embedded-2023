@@ -1,6 +1,6 @@
 #ifdef ANTENNA
 #include "antenna.h"
-#include <cmath>
+#include <math.h>
 
 float rover_coords[2]; //latitude, longitude
 float antenna_heading_params[4]; // antenna latitude, antenna longitude, rover initial latitude, rover initial longtitude
@@ -26,14 +26,25 @@ void antenna_loop(){
   double dot_product_initial_new_distance_diff = initial_latitude_diff * new_latitude_diff + initial_longitude_diff * new_longitude_diff;
   double divider =  new_distance * initial_distance;
   double theta_deg = 0;
-  if(divider > 1e-6){
-    double theta_rad = acos(dot_product_initial_new_distance_diff/(new_distance * initial_distance));
-    theta_deg = theta_rad * 180/M_PI;
+  double sin_theta = 0;
+  if(divider > 1e-16){
+    double theta_rad = acos(dot_product_initial_new_distance_diff/(divider));
+    theta_deg = theta_rad * 180.0/M_PI;
+    double cross_product = new_latitude_diff * initial_longitude_diff - initial_latitude_diff * new_longitude_diff;
+    sin_theta = cross_product/ divider;
+
   }
+
   
   // Adding the offset and setting the servo angle
-  servo_angle[0] = theta_deg + 90;
-  servo.write(servo_angle[0]);
+  if (sin_theta < 0){
+    servo_angle[0] = (float)(90 + theta_deg);
+    servo.write(servo_angle[0]);
+  }
+  else{
+    servo_angle[0] = (float)(90 - theta_deg);
+    servo.write(servo_angle[0]);
+  }
 }
 
 #endif
