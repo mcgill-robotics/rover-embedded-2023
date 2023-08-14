@@ -104,7 +104,15 @@ double PIDImpl::calculate(double setpoint, double pv)
     // Integral term
     _integral += error * _dt;
     double Iout = _Ki * _integral;
-    Iout = min(Iout, 70.0);
+    double temp_Iout = abs(Iout);
+    if (Iout > 0.0)
+    {
+        Iout = min(temp_Iout, 50.0);
+    }
+    else
+    {
+        Iout = -min(temp_Iout, 50.0);
+    }
 
     // Derivative term
     double derivative = (error - _pre_error) / _dt;

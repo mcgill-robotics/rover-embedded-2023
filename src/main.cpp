@@ -157,10 +157,10 @@ void setup()
 #endif
 
   nh.negotiateTopics();
-  // while (!nh.connected())
-  // {
-  //   nh.negotiateTopics();
-  // }
+  while (!nh.connected())
+  {
+    nh.negotiateTopics();
+  }
 
   lastTime = micros();
 }
