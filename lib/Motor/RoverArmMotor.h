@@ -38,7 +38,7 @@ public:
 #define MIN_ADC_VALUE 0    // 200
 
     RoverArmMotor(float *sp, float *feedback_angle, int pwm_pin, int dir_pin, int encoder_pin, int esc_type,
-                  double minimum_angle, double maximum_angle);
+                  double minimum_angle, double maximum_angle, double angle_straight);
 
     // Setters for various tunable parameters of our motors
     void set_PID_params(double regP, double regI, double regD); // mn297
@@ -136,6 +136,7 @@ public: // TESTING only
     float inverted;
     int inverted_angle;
     double error_range;
+    double _angle_straight;
 
     double angle_history[5];
     int angle_history_index = 0;

@@ -33,13 +33,15 @@ public:
     // dt -  loop interval time
     // max - maximum value of manipulated variable
     // min - minimum value of manipulated variable
-    PID(double dt, double max, double min, double Kp, double Ki, double Kd);
+    PID(double dt, double angle_straight, double max, double min, double Kp, double Ki, double Kd);
 
     // Returns the manipulated variable given a setpoint and current process value
     double calculate(double setpoint, double pv);
     ~PID();
     void setPID(double Kp, double Ki, double Kd);
     void reset_integral();
+    void use_gravity_compensation(bool gravity_compensation);
+    double calculate_gravity_compensation(double angle_deg);
 
 private:
     PIDImpl *pimpl;

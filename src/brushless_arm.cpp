@@ -42,17 +42,17 @@ volatile unsigned long last_trigger_time_waist_min = 0;
 
 /*---------------------ELBOW_SERVO DECLARATIONS---------------------*/
 #if TEST_ELBOW_SERVO == 1
-RoverArmMotor Elbow(&armBrushlessTargetAngles[0], &armBrushlessActualAngles[0], PWM2, -1, CS1, BLUE_ROBOTICS, ELBOW_MIN_ANGLE, ELBOW_MAX_ANGLE);
+RoverArmMotor Elbow(&armBrushlessTargetAngles[0], &armBrushlessActualAngles[0], PWM2, -1, CS1, BLUE_ROBOTICS, ELBOW_MIN_ANGLE, ELBOW_MAX_ANGLE, ELBOW_ANGLE_STRAIGHT);
 #endif
 
 /*---------------------SHOULDER_SERVO DECLARATIONS---------------------*/
 #if TEST_SHOULDER_SERVO == 1
-RoverArmMotor Shoulder(&armBrushlessTargetAngles[1], &armBrushlessActualAngles[1], PWM1, -1, CS2, BLUE_ROBOTICS, SHOULDER_MIN_ANGLE, SHOULDER_MAX_ANGLE);
+RoverArmMotor Shoulder(&armBrushlessTargetAngles[1], &armBrushlessActualAngles[1], PWM1, -1, CS2, BLUE_ROBOTICS, SHOULDER_MIN_ANGLE, SHOULDER_MAX_ANGLE, SHOULDER_ANGLE_STRAIGHT);
 #endif
 
 /*---------------------WAIST_SERVO DECLARATIONS---------------------*/
 #if TEST_WAIST_SERVO == 1
-RoverArmMotor Waist(&armBrushlessTargetAngles[2], &armBrushlessActualAngles[2], PWM3, -1, CS3, BLUE_ROBOTICS, WAIST_MIN_ANGLE, WAIST_MAX_ANGLE);
+RoverArmMotor Waist(&armBrushlessTargetAngles[2], &armBrushlessActualAngles[2], PWM3, -1, CS3, BLUE_ROBOTICS, WAIST_MIN_ANGLE, WAIST_MAX_ANGLE, 0);
 #endif
 
 void brushless_arm_setup()
@@ -69,7 +69,7 @@ void brushless_arm_setup()
   Elbow.set_safety_pins(ELBOW_BRAKE, LIMIT_ELBOW_MAX, LIMIT_ELBOW_MIN);
 
   Elbow.begin(REG_KP_ELBOW, REG_KI_ELBOW, REG_KD_ELBOW, REG_KP_ELBOW_AGG, REG_KI_ELBOW_AGG, REG_KD_ELBOW_AGG);
-
+  Elbow.internalPIDInstance->use_gravity_compensation(true);
   Elbow.reset_encoder();
   Elbow.set_zero_angle();
   Elbow.set_current_as_zero_angle_sw(ELBOW_ZERO_ANGLE);
@@ -85,6 +85,7 @@ void brushless_arm_setup()
   Shoulder.set_safety_pins(SHOULDER_BRAKE, LIMIT_SHOULDER_MAX, LIMIT_SHOULDER_MIN);
 
   Shoulder.begin(REG_KP_SHOULDER, REG_KI_SHOULDER, REG_KD_SHOULDER, REG_KP_SHOULDER_AGG, REG_KI_SHOULDER_AGG, REG_KD_SHOULDER_AGG);
+  Shoulder.internalPIDInstance->use_gravity_compensation(true);
 
   Shoulder.reset_encoder();
   Shoulder.set_zero_angle();
@@ -115,9 +116,9 @@ void brushless_arm_setup()
 
 void brushless_arm_loop()
 {
-  while (micros() < lastTime + PID_PERIOD_US)
-    ;
-  lastTime += PID_PERIOD_US;
+  // while (micros() < lastTime + PID_PERIOD_US)
+  //   ;
+  // lastTime += PID_PERIOD_US;
 // put your main code here, to run repeatedly:
 #if TEST_ELBOW_SERVO == 1
   Elbow.tick();

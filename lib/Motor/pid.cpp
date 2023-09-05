@@ -37,10 +37,12 @@ using namespace std;
 class PIDImpl
 {
 public:
-    PIDImpl(double dt, double max, double min, double Kp, double Ki, double Kd);
+    PIDImpl(double dt, double angle_straight, double max, double min, double Kp, double Ki, double Kd);
     ~PIDImpl();
     double calculate(double setpoint, double pv);
     void setPID(double Kp, double Ki, double Kd);
+    void use_gravity_compensation(bool gravity_compensation);
+    double calculate_gravity_compensation(double angle_deg);
 
     // private:
     double _dt;
@@ -51,16 +53,20 @@ public:
     double _Kd;
     double _pre_error;
     double _integral;
+    double _angle_straight;
+    bool _gravity_compensation;
 };
 
-PID::PID(double dt, double max, double min, double Kp, double Ki, double Kd)
+PID::PID(double dt, double angle_straight, double max, double min, double Kp, double Ki, double Kd)
 {
-    pimpl = new PIDImpl(dt, max, min, Kp, Ki, Kd);
+    pimpl = new PIDImpl(dt, angle_straight, max, min, Kp, Ki, Kd);
 }
+
 double PID::calculate(double setpoint, double pv)
 {
     return pimpl->calculate(setpoint, pv);
 }
+
 PID::~PID()
 {
     delete pimpl;
@@ -68,9 +74,12 @@ PID::~PID()
 
 void PID::setPID(double Kp, double Ki, double Kd)
 {
-    pimpl->_Kp = Kp;
-    pimpl->_Ki = Ki;
-    pimpl->_Kd = Kd;
+    pimpl->setPID(Kp, Ki, Kd);
+}
+
+void PID::use_gravity_compensation(bool gravity_compensation)
+{
+    pimpl->_gravity_compensation = gravity_compensation;
 }
 
 void PID::reset_integral()
@@ -81,19 +90,23 @@ void PID::reset_integral()
 /**
  * Implementation
  */
-PIDImpl::PIDImpl(double dt, double max, double min, double Kp, double Ki, double Kd) : _dt(dt),
-                                                                                       _max(max),
-                                                                                       _min(min),
-                                                                                       _Kp(Kp),
-                                                                                       _Ki(Ki),
-                                                                                       _Kd(Kd),
-                                                                                       _pre_error(0),
-                                                                                       _integral(0)
+PIDImpl::PIDImpl(double dt, double angle_straight, double max, double min, double Kp, double Ki, double Kd) : _dt(dt),
+                                                                                                              _angle_straight(angle_straight),
+                                                                                                              _max(max),
+                                                                                                              _min(min),
+                                                                                                              _Kp(Kp),
+                                                                                                              _Ki(Ki),
+                                                                                                              _Kd(Kd),
+                                                                                                              _pre_error(0),
+                                                                                                              _integral(0),
+                                                                                                              _gravity_compensation(false)
 {
 }
 
 double PIDImpl::calculate(double setpoint, double pv)
 {
+    // Calculate gravity compensation
+    double gravity_compensation = calculate_gravity_compensation(pv);
 
     // Calculate error
     double error = setpoint - pv;
@@ -105,24 +118,21 @@ double PIDImpl::calculate(double setpoint, double pv)
     _integral += error * _dt;
     double Iout = _Ki * _integral;
     double temp_Iout = abs(Iout);
-    if (Iout > 0.0)
+    if (_integral > 0.0)
     {
-        Iout = min(temp_Iout, 50.0);
+        Iout = min(temp_Iout, 40.0);
     }
     else
     {
-        Iout = -min(temp_Iout, 50.0);
+        Iout = -min(temp_Iout, 40.0);
     }
 
     // Derivative term
     double derivative = (error - _pre_error) / _dt;
     double Dout = _Kd * derivative;
 
-    // double derivative = error / _dt;
-    // double Dout = _Kd * derivative / 100;
-
     // Calculate total output
-    double output = Pout + Iout + Dout;
+    double output = Pout + Iout + Dout + gravity_compensation;
 
     // Restrict to max/min
     if (output > _max)
@@ -135,8 +145,8 @@ double PIDImpl::calculate(double setpoint, double pv)
 
     char buffer[256];
     sprintf(buffer,
-            "Pout: %f, Iout: %f, Dout: %f, error: %f, _pre_error: %f, output: %f\r\n",
-            Pout, Iout, Dout, error, _pre_error, output);
+            "Pout: %f, Iout: %f, Dout: %f, gravity_comp: %f, error: %f, _pre_error: %f, output: %f\r\n",
+            Pout, Iout, Dout, gravity_compensation, error, _pre_error, output);
     nh.loginfo(buffer);
 
     return output;
@@ -145,12 +155,35 @@ double PIDImpl::calculate(double setpoint, double pv)
 PIDImpl::~PIDImpl()
 {
 }
+
 void PIDImpl::setPID(double Kp, double Ki, double Kd)
 {
-    Serial.printf("Kp: %f, Kd: %f, Ki: %f\r\n", Kp, Ki, Kd);
     _Kp = Kp;
     _Ki = Ki;
     _Kd = Kd;
+}
+
+void PIDImpl::use_gravity_compensation(bool gravity_compensation)
+{
+    _gravity_compensation = gravity_compensation;
+}
+
+double PIDImpl::calculate_gravity_compensation(double angle_deg)
+{
+    // Constants
+    const double arm_length = 0.5; // Length of arm in meters
+    const double arm_mass = 1.0;   // Mass of arm in kilograms
+    const double g = 9.81;         // Acceleration due to gravity in m/s^2
+
+    // Calculate the angle in radians
+    double angle_rad = (angle_deg - _angle_straight) * M_PI / 180.0;
+
+    // Calculate the torque needed to counteract gravity
+    // Torque = gravitational force * lever arm
+    // The lever arm is arm_length/2 for a uniformly distributed mass
+    double torque = arm_mass * g * arm_length * 0.5 * sin(angle_rad);
+
+    return torque;
 }
 
 #endif

@@ -29,7 +29,7 @@ extern ros::NodeHandle nh;
  * @retval None
  */
 RoverArmMotor::RoverArmMotor(float *sp, float *feedback_angle, int pwm_pin, int dir_pin, int encoder_pin, int esc_type,
-                             double minimum_angle, double maximum_angle)
+                             double minimum_angle, double maximum_angle, double angle_straight)
 {
     _pwm = pwm_pin;
     _dir = dir_pin;
@@ -65,6 +65,7 @@ RoverArmMotor::RoverArmMotor(float *sp, float *feedback_angle, int pwm_pin, int 
     _limit_pin_min = -1;
 
     angle_full_turn = 360.0f;
+    _angle_straight = angle_straight;
 }
 
 void RoverArmMotor::begin(double regP, double regI, double regD, double aggP, double aggI, double aggD)
@@ -99,12 +100,12 @@ void RoverArmMotor::begin(double regP, double regI, double regD, double aggP, do
     /*------------------Initialize PID------------------*/
     if (escType == CYTRON)
     {
-        internalPIDInstance = new PID(PID_DT, CYTRON_MAX_OUTPUT, -CYTRON_MAX_OUTPUT, regP, regI, regD);
+        internalPIDInstance = new PID(PID_DT, _angle_straight, CYTRON_MAX_OUTPUT, -CYTRON_MAX_OUTPUT, regP, regI, regD);
     }
     else if (escType == BLUE_ROBOTICS)
     {
         // Max is actually 400 but this is safer.
-        internalPIDInstance = new PID(PID_DT, SERVO_MAX_OUTPUT, -SERVO_MAX_OUTPUT, regP, regI, regD);
+        internalPIDInstance = new PID(PID_DT, _angle_straight, SERVO_MAX_OUTPUT, -SERVO_MAX_OUTPUT, regP, regI, regD);
     }
 
     /*------------------Get setpoint------------------*/
@@ -209,15 +210,15 @@ void RoverArmMotor::tick()
     sprintf(buffer, "diff: %f, temp_speed: %f, angle: %f, setpoint: %f", diff, temp_speed, *current_angle_float, *setpoint);
     nh.logwarn(buffer);
 
-    if (temp_speed < 0.02 && diff < error_range)
-    {
-        output = 0;
-        this->engage_brake();
-        this->stop(); // stop the motor
-        internalPIDInstance->reset_integral();
-        // internalPIDInstance->calculate((double)(setpoint_internal), input);
-        return;
-    }
+    // if (temp_speed < 0.02 && diff < error_range)
+    // {
+    //     output = 0;
+    //     this->engage_brake();
+    //     this->stop(); // stop the motor
+    //     internalPIDInstance->reset_integral();
+    //     // internalPIDInstance->calculate((double)(setpoint_internal), input);
+    //     return;
+    // }
 
     input = currentAngle; // range is R line
     lastAngle = currentAngle;
@@ -294,34 +295,44 @@ void RoverArmMotor::tick()
     // Output range from 1100-1900 us of a 2500 us period
     else if (escType == BLUE_ROBOTICS)
     {
-        if (fight_gravity)
-        {
-            if (output < 0)
-            {
-                double temp_output = abs(output);
-                temp_output *= 3.0f;
-                temp_output += 55.0f;
-                // Capping output.
-                output = max((-1.0f) * temp_output, -250.0f);
-            }
-            else
-            {
-                // Light braking.
-                output = 0.0f;
-            }
-        }
-        if (fight_gravity_2)
-        {
-            if (output < 0 && currentAngle > 0)
-            {
-                double temp_output = abs(output);
-                temp_output *= 2.5f;
-                temp_output += 40.0f;
-                // Capping output.
-                output = max((-1.0f) * temp_output, -230.0f);
-            }
-        }
+        // if (fight_gravity)
+        // {
+        //     if (output < 0)
+        //     {
+        //         double temp_output = abs(output);
+        //         temp_output *= 3.0f;
+        //         temp_output += 55.0f;
+        //         // Capping output.
+        //         output = max((-1.0f) * temp_output, -250.0f);
+        //     }
+        //     else
+        //     {
+        //         // Light braking.
+        //         output = 0.0f;
+        //     }
+        // }
+        // if (fight_gravity_2)
+        // {
+        //     if (output < 0 && currentAngle > 0)
+        //     {
+        //         double temp_output = abs(output);
+        //         temp_output *= 2.5f;
+        //         temp_output += 40.0f;
+        //         // Capping output.
+        //         output = max((-1.0f) * temp_output, -230.0f);
+        //     }
+        // }
         this->disengage_brake();
+        double temp_output = abs(output);
+        // Deadband.
+        if (temp_output > 0)
+        {
+            output += 24.0f;
+        }
+        else
+        {
+            output -= 24.0f;
+        }
         volatile double output_actual = (1500.0f + output * inverted) * 100.0f / 2500.0f;
         pwmInstance->setPWM(_pwm, _pwm_freq, output_actual);
         return;

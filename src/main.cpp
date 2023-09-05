@@ -11,6 +11,7 @@
 #include "std_msgs/Float32MultiArray.h"
 #include "std_msgs/String.h"
 #include "RoverArmMotor.h"
+#include "rover_arm.h"
 
 #define CONTROL_LOOP_PERIOD_US 5000
 
@@ -167,9 +168,12 @@ void setup()
 
 void loop()
 {
-  while (micros() < lastTime + CONTROL_LOOP_PERIOD_US)
+  // while (micros() < lastTime + CONTROL_LOOP_PERIOD_US)
+  //   ;
+  // lastTime += CONTROL_LOOP_PERIOD_US;
+  while (micros() < lastTime + PID_PERIOD_US)
     ;
-  lastTime += CONTROL_LOOP_PERIOD_US;
+  lastTime += PID_PERIOD_US;
 
   // while (!nh.connected())
   // {
