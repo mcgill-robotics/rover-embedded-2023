@@ -29,8 +29,10 @@ EulerAnglesStruct eulerStruct;
 #endif
 
 void gps_loop(){
+  Serial1.print("hello");
   coords[0] = gps.location.lat();
   coords[1] = gps.location.lng();
+  Serial.println(coords[0]);
 
   while (Serial1.available()) gps.encode(Serial1.read());
   #ifdef USE_IMU

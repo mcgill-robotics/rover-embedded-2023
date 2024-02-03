@@ -179,7 +179,7 @@ void loop()
   #endif
   #ifdef GPS
   gps_loop();
-  roverGPSData.publish(&roverGPSDataMsg);
+//   roverGPSData.publish(&roverGPSDataMsg);
   #endif
   #ifdef ANTENNA
   antenna_loop();
